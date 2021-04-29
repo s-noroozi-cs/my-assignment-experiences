@@ -1,0 +1,3723 @@
+
+
+
+
+
+<html>
+<head>
+    <meta http-equiv="x-ua-compatible" content="IE=5" />
+    <link href="css/formdesigner.css" rel="stylesheet" type="text/css"/>
+
+    <SCRIPT language="javascript">
+        var FORM_DESIGN_BASE_URL = new String("/exarchive");
+        var GAAS_ADDRESS = '';
+    </SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/ResourceBundle_fa.js" type="text/javascript"></SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/Constants.js" type="text/javascript"></SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/Inheritance.js" type="text/javascript"></SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/Ajax.js" type="text/javascript"></SCRIPT>
+    <SCRIPT language="javascript" src="js/DialogBox.js"></SCRIPT>
+    <!--<SCRIPT language="javascript" src="js/mootools-release-1.11.js"></SCRIPT>-->
+    <SCRIPT language="javascript" src="js/mootools-1.2-core.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/mootools-1.2-more.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/propertypanels/ShortStringURLViewDialog.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/formdesigner/MessageBox.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/Validationkey.js"></SCRIPT>
+
+    <SCRIPT language="javascript" src="js/autocompleter/Autocompleter.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/autocompleter/Observer.js"></SCRIPT>
+    <link href="js/autocompleter/Autocompleter.css" rel="stylesheet" type="text/css"/>
+
+    <SCRIPT language="javascript" src="js/htmleditor/ckeditor.js"></SCRIPT>
+    <SCRIPT language="javascript" src="js/ContextMenu.js" type="text/javascript"></SCRIPT>
+
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>
+        طراحی فرم
+    </title>
+    <script language="javascript">
+        var ajax = new Ajax(FORM_DESIGN_BASE_URL + "/designform.do");
+        var messageBox = new MessageBox(PLEASE_WAIT,CONFIGURING_FORM_DESIGNER,MESSAGE_BOX_TYPE_INFO,"");
+
+        function fetchTableFields()
+        {
+            if(document.getElementById("tableList").selectedIndex != 0)
+            {
+                var baseTableID = document.getElementById("tableList").options[document.getElementById("tableList").selectedIndex].value;
+                var baseTableLatinName = baseTableID.split("@")[1];
+                baseTableID = baseTableID.split("@")[0];
+                mainController.setBaseTable(document.getElementById("tableList").options[document.getElementById("tableList").selectedIndex].innerText,
+                    baseTableID, baseTableLatinName);
+                ajax = new Ajax("designform.do?method=loadFields&tableName=" +
+                    document.getElementById("tableList").options[document.getElementById("tableList").selectedIndex].value);
+                ajax.addHandler(fieldListArrived);
+                ajax.setAsynchron(true);
+                ajax.setMethod("GET");
+                ajax.send();
+                messageBox = new MessageBox(LOADING_FIELD_LIST,PLEASE_WAIT,MESSAGE_BOX_TYPE_INFO,"",1);
+                messageBox.showServerToClientProgressBar();
+                document.getElementById("tableList").disabled = true;
+            }
+        }
+
+        function fetchFieldsFromXML(fieldElement, recursive)
+        {
+            var nameAttribute = new String();
+            var labelAttribute = new String();
+            var typeAttribute = new String();
+            var multiSelectAttribute = new String();
+            var sourceTypeAttribute = new String();
+            var requiredAttribute = new String();
+            var valueAttribute = new String("");
+            var trueLabelAttribute = new String();
+            var falseLabelAttribute = new String();
+
+            for(var j = 0; j < fieldElement.attributes.length; j++)
+            {
+                if(fieldElement.attributes[j].name == "name")
+                {
+                    nameAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "label")
+                {
+                    labelAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "type")
+                {
+                    typeAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "multi-select")
+                {
+                    multiSelectAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "source-type")
+                {
+                    sourceTypeAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "required")
+                {
+                    requiredAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "value")
+                {
+                    valueAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "true-label")
+                {
+                    trueLabelAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+                if(fieldElement.attributes[j].name == "false-label")
+                {
+                    falseLabelAttribute = fieldElement.attributes[j].value;
+                    continue;
+                }
+            }
+            var newField = new Field(getFieldTypeByFromString(typeAttribute),nameAttribute,valueAttribute, labelAttribute, requiredAttribute);
+
+            if(multiSelectAttribute.length > 0)
+                newField.setProperty(PROPERTY_NAME_MULTI_SELECT,multiSelectAttribute);
+
+            if(sourceTypeAttribute.length > 0)
+                newField.setProperty(PROPERTY_NAME_REFERENCE_LIST_SOURCE_TYPE, sourceTypeAttribute);
+
+            if(trueLabelAttribute.length > 0)
+                newField.setProperty(SPECIAL_PROPERTY_BOOLEAN_TRUE_LABEL, trueLabelAttribute);
+
+            if(falseLabelAttribute.length > 0)
+                newField.setProperty(SPECIAL_PROPERTY_BOOLEAN_FALSE_LABEL, falseLabelAttribute);
+
+            if((typeAttribute == FIELD_TYPE_REFERENCE_LIST) && (recursive == true))
+            {
+                var fields = fieldElement.childNodes;
+                for(var i = 0; i < fields.length; i++)
+                {
+                    newField.addContent(fetchFieldsFromXML(fields[i], false));
+                }
+            }
+
+            return newField;
+        }
+
+        function fieldListArrived()
+        {
+            if(ajax.getStatusCode() == 4)
+            {
+                messageBox.hide();
+                //  Loading completed
+                if(ajax.getStatus() == 200)
+                {
+                    //    An array of field object that will be passed to main controller
+                    var fieldListArray = new Array();
+                    var fieldsAsXML = ajax.getResponseText();
+                    var fieldsDocument = new ActiveXObject("Msxml2.DOMDocument.3.0");
+                    fieldsDocument.loadXML(fieldsAsXML);
+                    var fields = fieldsDocument.documentElement.childNodes;
+
+                    for(var i = 0; i < fields.length; i++)
+                    {
+                        fieldListArray.push(fetchFieldsFromXML(fields[i], true));
+                    }
+
+                    fillFieldList(fieldListArray);
+                }
+                else
+                {
+                    alert("An error occured, response code is : " + ajax.getStatus() + " " + ajax.getResponseText());
+                }
+                document.getElementById("tableList").disabled = false;
+            }
+        }
+
+        function formNameChange()
+        {
+            mainController.setFormName(document.getElementById("formNameEnglish").value);
+            mainController.setFormNamePersian(document.getElementById("formNamePersian").value);
+
+            return true;
+        }
+
+        function formTypeChange(newType)
+        {
+            mainController.setFormType(newType);
+
+            return true;
+        }
+    </script>
+</head>
+
+
+<BODY unselectable="on" topmargin="0" dir="ltr" leftmargin="0" bottommargin="0" rightmargin="0" class="clsBody" style="font-family:Tahoma; font-size:7pt; visibility:hidden;" onload="return fillFieldList('EDIT');">
+
+
+
+
+<form name="formDesignForm" method="post" action="/exarchive/designform.do" id="designform">
+    <IFRAME id="openXFDLFrame" style="display:none;" visible="false" width="0" height="0" src="jsp/designform/openxfdlframe.jsp"></IFRAME>
+    <IFRAME id="downloadXFDLFrame" name="downloadXFDLFrame" style="display:none;" visible="false" width="0" height="0" src=""></IFRAME>
+    <a href="" target="downloadXFDLFrame" style="display:none" id="downloadXFDLLink"></a>
+    <input type="hidden" name="XFDL" value="">
+    <input type="hidden" name="method" value="save">
+    <input type="hidden" name="formWidth" value="" id="formWidth">
+    <input type="hidden" name="formHeight" value="" id="formHeight">
+</form>
+<DIV id="logWindowBackground" class="logWindowBackground">
+    <DIV id="logWindow" class="logWindow">
+        <br/><br/>
+        در حال پیکربندی محيط طراحی فرم<br/><br/>لطفا چند لحظه صبر کنید
+        <br/><br/>
+        <table cellpadding="1" cellspacing="0">
+            <tr>
+                <td>
+                    <img src="images/formdesigner/workstation.gif">
+                </td>
+                <td>
+                    <img src="images/formdesigner/progress_server_to_client.gif">
+                </td>
+                <td>
+                    <img src="images/formdesigner/server.gif">
+                </td>
+            </tr>
+        </table>
+    </DIV>
+</DIV>
+<DIV id="toolbarPanel" class="clsToolbarPanel" unselectable="on">
+</DIV>
+<DIV id="canvasPanel" class="clsCanvasPanel" unselectable="on">
+    <DIV id="propertyPanelManager" class="clsPropertyPanelManager" unselectable="on">
+    </DIV>
+    <DIV id="canvas" class="clsCanvas" style="width: 827px; height: 423px" unselectable="on">
+    </DIV>
+</DIV>
+<DIV id="propertyStrip" class="clsPropertyStrip" unselectable="on">
+    <DIV id="mainPropertyPanel" class="clsMainPropertyPanel" unselectable="on">
+        <FIELDSET class="clsGroupBoxes" unselectable="on">
+            <LEGEND class="clsGroupBoxesTitleText" unselectable="on">
+                <IMG src="images/formdesigner/info.gif" style="vertical-align: top;" unselectable="on" />
+                <B unselectable="on">مشخصات فرم</B></LEGEND>
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;
+                        <span style="color:blue; text-decoration:underline; cursor:pointer;" onclick="showTableSelectionPopup();">آرشیو مبنا</span>:
+                    </TD>
+                    <TD align="center" width="90px;" unselectable="on">
+                        <SELECT class="clsSelect" style="font-family:Tahoma; font-size:7pt; width:100%; display:none;" onchange="return fetchTableFields();" id="tableList">
+                            <OPTION value="_NOTHING_SELECTED">
+                                انتخاب کنید
+                            </OPTION>
+
+                            <OPTION value="2450@111@111">
+                                111
+                            </OPTION>
+
+                            <OPTION value="3218@SSS@11111111111">
+                                11111111111
+                            </OPTION>
+
+                            <OPTION value="3239@ASFFHG@12233r">
+                                12233r
+                            </OPTION>
+
+                            <OPTION value="3235@NIKA@123">
+                                123
+                            </OPTION>
+
+                            <OPTION value="1908@1ISKXLETHIST@1تاریخچه نامه RISK">
+                                1تاریخچه نامه RISK
+                            </OPTION>
+
+                            <OPTION value="1663@2ACTIVITY@2فعالیت های روابط عمومی استان">
+                                2فعالیت های روابط عمومی استان
+                            </OPTION>
+
+                            <OPTION value="1664@3ACTIVITYC@3فعالیت های روابط عمومی مرکز">
+                                3فعالیت های روابط عمومی مرکز
+                            </OPTION>
+
+                            <OPTION value="1903@6INCXLETANSR@6پاسخ ها FINC">
+                                6پاسخ ها FINC
+                            </OPTION>
+
+                            <OPTION value="1986@9THNWXLETTER@9نامه THNW">
+                                9نامه THNW
+                            </OPTION>
+
+                            <OPTION value="2859@CBKUPDATE@CBK-بروزرسانی رابط مشتری">
+                                CBK-بروزرسانی رابط مشتری
+                            </OPTION>
+
+                            <OPTION value="2858@CBKCHANGENO@CBK-تغییر شماره مشتری حساب اشتراکی">
+                                CBK-تغییر شماره مشتری حساب اشتراکی
+                            </OPTION>
+
+                            <OPTION value="2856@CBKCOMMON@CBK-درخواست های شعب">
+                                CBK-درخواست های شعب
+                            </OPTION>
+
+                            <OPTION value="2860@CBKFIXCHECK@CBK-رفع ابطال چک">
+                                CBK-رفع ابطال چک
+                            </OPTION>
+
+                            <OPTION value="2862@CBKBRANCH@CBK-شعب">
+                                CBK-شعب
+                            </OPTION>
+
+                            <OPTION value="2857@CBKCUSTMERNO@CBK-شماره مشتری حقیقی یا حقوقی">
+                                CBK-شماره مشتری حقیقی یا حقوقی
+                            </OPTION>
+
+                            <OPTION value="2861@REGION@CBK-مناطق">
+                                CBK-مناطق
+                            </OPTION>
+
+                            <OPTION value="2865@CBKJOBUSER@CBK-کاربر کارگزینی">
+                                CBK-کاربر کارگزینی
+                            </OPTION>
+
+                            <OPTION value="2863@CBKUSERS@CBK-کاربران شعب">
+                                CBK-کاربران شعب
+                            </OPTION>
+
+                            <OPTION value="2864@CBKUSEROP@CBK-کاربران عملیات اداره پشتیبانی">
+                                CBK-کاربران عملیات اداره پشتیبانی
+                            </OPTION>
+
+                            <OPTION value="461@PAPER127@PAPER127">
+                                PAPER127
+                            </OPTION>
+
+                            <OPTION value="524@PAPER142@PAPER142">
+                                PAPER142
+                            </OPTION>
+
+                            <OPTION value="1808@PAPER1590@PAPER1590">
+                                PAPER1590
+                            </OPTION>
+
+                            <OPTION value="2675@PAPER162@PAPER162">
+                                PAPER162
+                            </OPTION>
+
+                            <OPTION value="2111@PAPER2088@PAPER2088">
+                                PAPER2088
+                            </OPTION>
+
+                            <OPTION value="2330@PAPER2210@PAPER2210">
+                                PAPER2210
+                            </OPTION>
+
+                            <OPTION value="903@PAPER502@PAPER502">
+                                PAPER502
+                            </OPTION>
+
+                            <OPTION value="1161@PAPER621@PAPER621">
+                                PAPER621
+                            </OPTION>
+
+                            <OPTION value="1703@PAPER881@PAPER881">
+                                PAPER881
+                            </OPTION>
+
+                            <OPTION value="2598@WFTEST@WFTEST">
+                                WFTEST
+                            </OPTION>
+
+                            <OPTION value="2855@BEYRAGHDAR@beyraghdar">
+                                beyraghdar
+                            </OPTION>
+
+                            <OPTION value="2190@CB@cb">
+                                cb
+                            </OPTION>
+
+                            <OPTION value="3035@CHAAP@chaap">
+                                chaap
+                            </OPTION>
+
+                            <OPTION value="2510@CLASS1@class1">
+                                class1
+                            </OPTION>
+
+                            <OPTION value="2511@CLASS2@class2">
+                                class2
+                            </OPTION>
+
+                            <OPTION value="2512@CLASS3@class3">
+                                class3
+                            </OPTION>
+
+                            <OPTION value="3655@DEPD@depd">
+                                depd
+                            </OPTION>
+
+                            <OPTION value="2955@DFS@dsf">
+                                dsf
+                            </OPTION>
+
+                            <OPTION value="3257@DSFSADF@dsfds">
+                                dsfds
+                            </OPTION>
+
+                            <OPTION value="3240@DSDFSFA@dsfdsf">
+                                dsfdsf
+                            </OPTION>
+
+                            <OPTION value="801@END@end">
+                                end
+                            </OPTION>
+
+                            <OPTION value="2975@ERJAEEEE@erjaeeee">
+                                erjaeeee
+                            </OPTION>
+
+                            <OPTION value="2976@FAGHATTASVIR@faghattasvir">
+                                faghattasvir
+                            </OPTION>
+
+                            <OPTION value="2815@FLOWABLE@flowable">
+                                flowable
+                            </OPTION>
+
+                            <OPTION value="3661@MORKHASI@morkhasi">
+                                morkhasi
+                            </OPTION>
+
+                            <OPTION value="2170@NAJMEH@najmeh">
+                                najmeh
+                            </OPTION>
+
+                            <OPTION value="2775@NUMBERINGTES@numberingtest">
+                                numberingtest
+                            </OPTION>
+
+                            <OPTION value="2995@OATEAM@oateam">
+                                oateam
+                            </OPTION>
+
+                            <OPTION value="1596@P1@p1">
+                                p1
+                            </OPTION>
+
+                            <OPTION value="1597@P2@p2">
+                                p2
+                            </OPTION>
+
+                            <OPTION value="3096@QE@qe">
+                                qe
+                            </OPTION>
+
+                            <OPTION value="3095@QW@qw">
+                                qw
+                            </OPTION>
+
+                            <OPTION value="3615@REGTTY@regtty">
+                                regtty
+                            </OPTION>
+
+                            <OPTION value="2575@SCANTEST@scantest">
+                                scantest
+                            </OPTION>
+
+                            <OPTION value="2676@SIGN1@sign1">
+                                sign1
+                            </OPTION>
+
+                            <OPTION value="3256@T1@t1">
+                                t1
+                            </OPTION>
+
+                            <OPTION value="2430@T9@t9">
+                                t9
+                            </OPTION>
+
+                            <OPTION value="941@TEST@test">
+                                test
+                            </OPTION>
+
+                            <OPTION value="2663@TEST11@test11">
+                                test11
+                            </OPTION>
+
+                            <OPTION value="621@TEST110@test110">
+                                test110
+                            </OPTION>
+
+                            <OPTION value="3335@TEST2@test2">
+                                test2
+                            </OPTION>
+
+                            <OPTION value="2666@TEST44@test44">
+                                test44
+                            </OPTION>
+
+                            <OPTION value="3255@TESTFILE1@testfile1">
+                                testfile1
+                            </OPTION>
+
+                            <OPTION value="2086@TESTPRINT7@testprint7">
+                                testprint7
+                            </OPTION>
+
+                            <OPTION value="3536@TESTTABTASVI@testtabtasvir">
+                                testtabtasvir
+                            </OPTION>
+
+                            <OPTION value="1586@TESTVIEW@testview">
+                                testview
+                            </OPTION>
+
+                            <OPTION value="3056@TOOLBARTEST@toolbartest">
+                                toolbartest
+                            </OPTION>
+
+                            <OPTION value="2795@TTY@tty">
+                                tty
+                            </OPTION>
+
+                            <OPTION value="2513@UNDEFCLASS@undefinedclass">
+                                undefinedclass
+                            </OPTION>
+
+                            <OPTION value="3219@XSSXS@xxsxs">
+                                xxsxs
+                            </OPTION>
+
+                            <OPTION value="1381@ZGH@zgh">
+                                zgh
+                            </OPTION>
+
+                            <OPTION value="3036@ARCHIVE2@آرشیو 2">
+                                آرشیو 2
+                            </OPTION>
+
+                            <OPTION value="1021@ZIRRADEH@آرشیو تست زیررده">
+                                آرشیو تست زیررده
+                            </OPTION>
+
+                            <OPTION value="841@WFETEST@آرشیو تست فرآیند">
+                                آرشیو تست فرآیند
+                            </OPTION>
+
+                            <OPTION value="1081@MOSHTAREK@آرشیو مشترکین جدید">
+                                آرشیو مشترکین جدید
+                            </OPTION>
+
+                            <OPTION value="381@ARCLETTER@آرشیو نامه">
+                                آرشیو نامه
+                            </OPTION>
+
+                            <OPTION value="3435@MODAL@آرشیو کمکی رویداد">
+                                آرشیو کمکی رویداد
+                            </OPTION>
+
+                            <OPTION value="2392@BAHKM@احکام بیمه ایران">
+                                احکام بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="884@WARRENTFAKE@احکام جعل">
+                                احکام جعل
+                            </OPTION>
+
+                            <OPTION value="2895@OFFICES@ادارات">
+                                ادارات
+                            </OPTION>
+
+                            <OPTION value="1002@EDARATMASOL@ادارات مسئول بررسی درخواست">
+                                ادارات مسئول بررسی درخواست
+                            </OPTION>
+
+                            <OPTION value="1520@AN1@ارائه دروس ترم 1">
+                                ارائه دروس ترم 1
+                            </OPTION>
+
+                            <OPTION value="3595@ERTEBAT@ارتباط">
+                                ارتباط
+                            </OPTION>
+
+                            <OPTION value="2374@CUSREG@ارتباط با مشتریان - بازاریابی">
+                                ارتباط با مشتریان - بازاریابی
+                            </OPTION>
+
+                            <OPTION value="362@BSIXERJA@ارجاع نامهBSI">
+                                ارجاع نامهBSI
+                            </OPTION>
+
+                            <OPTION value="2535@STDXERJA@ارجاع نامهSTD">
+                                ارجاع نامهSTD
+                            </OPTION>
+
+                            <OPTION value="2246@THSXERJA@ارجاع نامهTHS">
+                                ارجاع نامهTHS
+                            </OPTION>
+
+                            <OPTION value="1944@ARZIXLETERJA@ارجاعات ARZI">
+                                ارجاعات ARZI
+                            </OPTION>
+
+                            <OPTION value="1883@CNTRXLETERJA@ارجاعات CNTR">
+                                ارجاعات CNTR
+                            </OPTION>
+
+                            <OPTION value="1923@CORBXLETERJA@ارجاعات CORB">
+                                ارجاعات CORB
+                            </OPTION>
+
+                            <OPTION value="1787@CRDTXLETERJA@ارجاعات CRDT">
+                                ارجاعات CRDT
+                            </OPTION>
+
+                            <OPTION value="1954@ENSNXLETERJA@ارجاعات ENSN">
+                                ارجاعات ENSN
+                            </OPTION>
+
+                            <OPTION value="1853@HOGHXLETERJA@ارجاعات HOGH">
+                                ارجاعات HOGH
+                            </OPTION>
+
+                            <OPTION value="1924@INNTXLETERJA@ارجاعات INNT">
+                                ارجاعات INNT
+                            </OPTION>
+
+                            <OPTION value="1772@ISMSXLETERJA@ارجاعات ISMS">
+                                ارجاعات ISMS
+                            </OPTION>
+
+                            <OPTION value="1811@ITEJXLETERJA@ارجاعات ITEJ">
+                                ارجاعات ITEJ
+                            </OPTION>
+
+                            <OPTION value="1843@PLSHXLETERJA@ارجاعات PLSH">
+                                ارجاعات PLSH
+                            </OPTION>
+
+                            <OPTION value="1873@RISKXLETERJA@ارجاعات RISK">
+                                ارجاعات RISK
+                            </OPTION>
+
+                            <OPTION value="1143@SAZNXLETERJA@ارجاعات SAZN">
+                                ارجاعات SAZN
+                            </OPTION>
+
+                            <OPTION value="1934@SLCTXLETERJA@ارجاعات SLCT">
+                                ارجاعات SLCT
+                            </OPTION>
+
+                            <OPTION value="1971@THENXLETERJA@ارجاعات THEN">
+                                ارجاعات THEN
+                            </OPTION>
+
+                            <OPTION value="1979@THNWXLETERJA@ارجاعات THNW">
+                                ارجاعات THNW
+                            </OPTION>
+
+                            <OPTION value="1863@THWCXLETERJA@ارجاعات THWC">
+                                ارجاعات THWC
+                            </OPTION>
+
+                            <OPTION value="832@THNXLETERJA@ارجاعات thn">
+                                ارجاعات thn
+                            </OPTION>
+
+                            <OPTION value="3077@REFTOSAMAS@ارجاعی به ساماش">
+                                ارجاعی به ساماش
+                            </OPTION>
+
+                            <OPTION value="2393@BARZESH@ارزشیابی بیمه ایران">
+                                ارزشیابی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="1518@PROF@اساتید">
+                                اساتید
+                            </OPTION>
+
+                            <OPTION value="161@ACPRPROVINC@استان">
+                                استان
+                            </OPTION>
+
+                            <OPTION value="163@PROVINCE@استان ها">
+                                استان ها
+                            </OPTION>
+
+                            <OPTION value="881@PROVICBRANCH@استان و مدیریت شعب">
+                                استان و مدیریت شعب
+                            </OPTION>
+
+                            <OPTION value="1767@EMPLOYE@استخدام">
+                                استخدام
+                            </OPTION>
+
+                            <OPTION value="2434@SSTELAM@استعلام ها- صادرات">
+                                استعلام ها- صادرات
+                            </OPTION>
+
+                            <OPTION value="1101@CREDIT@اسناد اعتباری">
+                                اسناد اعتباری
+                            </OPTION>
+
+                            <OPTION value="3155@SINA@اسناد بانک سینا">
+                                اسناد بانک سینا
+                            </OPTION>
+
+                            <OPTION value="541@ACCOUNTDOCS@اسناد حسابداری شعبه">
+                                اسناد حسابداری شعبه
+                            </OPTION>
+
+                            <OPTION value="2376@SHEHADOC@اسناد شها">
+                                اسناد شها
+                            </OPTION>
+
+                            <OPTION value="523@SAYERDOCS@اسناد متفرقه">
+                                اسناد متفرقه
+                            </OPTION>
+
+                            <OPTION value="366@BSIXRLTLET@اسناد مرتبطBSI">
+                                اسناد مرتبطBSI
+                            </OPTION>
+
+                            <OPTION value="2540@STDXRLTLET@اسناد مرتبطSTD">
+                                اسناد مرتبطSTD
+                            </OPTION>
+
+                            <OPTION value="2251@THSXRLTLET@اسناد مرتبطTHS">
+                                اسناد مرتبطTHS
+                            </OPTION>
+
+                            <OPTION value="482@BAJE@اسناد هزینه">
+                                اسناد هزینه
+                            </OPTION>
+
+                            <OPTION value="1447@DOCPRO@اسناد پروژه">
+                                اسناد پروژه
+                            </OPTION>
+
+                            <OPTION value="1902@OOOHHDOCPRO@اسناد پروژه ooohh">
+                                اسناد پروژه ooohh
+                            </OPTION>
+
+                            <OPTION value="1901@WOWDOCPRO@اسناد پروژه wow">
+                                اسناد پروژه wow
+                            </OPTION>
+
+                            <OPTION value="2515@BDOCPRO@اسناد پروژه بازاریابی">
+                                اسناد پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="61@MORASELHELP@اسکرپت راهنمای مراسلات">
+                                اسکرپت راهنمای مراسلات
+                            </OPTION>
+
+                            <OPTION value="103@MORASELHELP1@اسکریپت راهنمای مراسلات">
+                                اسکریپت راهنمای مراسلات
+                            </OPTION>
+
+                            <OPTION value="42@FORMSCRIPT@اسکریپت فرم">
+                                اسکریپت فرم
+                            </OPTION>
+
+                            <OPTION value="2366@DOCUPROCESS@اسکن و پردازش اسناد">
+                                اسکن و پردازش اسناد
+                            </OPTION>
+
+                            <OPTION value="2@PERSONS@اشخاص">
+                                اشخاص
+                            </OPTION>
+
+                            <OPTION value="2635@DEPPERSON@اشخاص سمت">
+                                اشخاص سمت
+                            </OPTION>
+
+                            <OPTION value="3675@DEPPERSON2@اشخاص سمت2">
+                                اشخاص سمت2
+                            </OPTION>
+
+                            <OPTION value="363@BSIXFLPRSON@اشخاص فایلرBSI">
+                                اشخاص فایلرBSI
+                            </OPTION>
+
+                            <OPTION value="2536@STDXFLPRSON@اشخاص فایلرSTD">
+                                اشخاص فایلرSTD
+                            </OPTION>
+
+                            <OPTION value="2247@THSXFLPRSON@اشخاص فایلرTHS">
+                                اشخاص فایلرTHS
+                            </OPTION>
+
+                            <OPTION value="529@ACCESSINFO@اطلاعات دسترسی">
+                                اطلاعات دسترسی
+                            </OPTION>
+
+                            <OPTION value="2245@POSITIONINFO@اطلاعات سمت">
+                                اطلاعات سمت
+                            </OPTION>
+
+                            <OPTION value="2368@COMPANYINFO@اطلاعات شرکت">
+                                اطلاعات شرکت
+                            </OPTION>
+
+                            <OPTION value="2411@PINFORMATION@اطلاعات هویتی بیماران خاص">
+                                اطلاعات هویتی بیماران خاص
+                            </OPTION>
+
+                            <OPTION value="3356@BPRSINFO@اطلاعات هویتی بیمه ایران">
+                                اطلاعات هویتی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="441@BASEINFO@اطلاعات پایه">
+                                اطلاعات پایه
+                            </OPTION>
+
+                            <OPTION value="2131@ETABASE@اطلاعات پایه اعطای دسترسی">
+                                اطلاعات پایه اعطای دسترسی
+                            </OPTION>
+
+                            <OPTION value="2041@BASEAMNIAT@اطلاعات پایه تعریف دسترسی">
+                                اطلاعات پایه تعریف دسترسی
+                            </OPTION>
+
+                            <OPTION value="2152@BASENET@اطلاعات پایه شبکه">
+                                اطلاعات پایه شبکه
+                            </OPTION>
+
+                            <OPTION value="444@USERINFO@اطلاعات کاربران">
+                                اطلاعات کاربران
+                            </OPTION>
+
+                            <OPTION value="761@WFEPRCDATA@اطلاعات گردش کار">
+                                اطلاعات گردش کار
+                            </OPTION>
+
+                            <OPTION value="1589@CHANGE@اعتراض">
+                                اعتراض
+                            </OPTION>
+
+                            <OPTION value="564@PGROUPMEMBER@اعضا گروه فرایند">
+                                اعضا گروه فرایند
+                            </OPTION>
+
+                            <OPTION value="531@MEMBERS@اعضای کمیته و هیئت">
+                                اعضای کمیته و هیئت
+                            </OPTION>
+
+                            <OPTION value="2089@PUTPERMISION@اعطای دسترسی">
+                                اعطای دسترسی
+                            </OPTION>
+
+                            <OPTION value="3299@NEED@اعلام نیازمندی">
+                                اعلام نیازمندی
+                            </OPTION>
+
+                            <OPTION value="3115@MORTABET@افراد مرتبط">
+                                افراد مرتبط
+                            </OPTION>
+
+                            <OPTION value="1943@ARZIXLETEGDM@اقدامات ARZI">
+                                اقدامات ARZI
+                            </OPTION>
+
+                            <OPTION value="1882@CNTRXLETEGDM@اقدامات CNTR">
+                                اقدامات CNTR
+                            </OPTION>
+
+                            <OPTION value="1784@CRDTXLETEGDM@اقدامات CRDT">
+                                اقدامات CRDT
+                            </OPTION>
+
+                            <OPTION value="1953@ENSNXLETEGDM@اقدامات ENSN">
+                                اقدامات ENSN
+                            </OPTION>
+
+                            <OPTION value="1852@HOGHXLETEGDM@اقدامات HOGH">
+                                اقدامات HOGH
+                            </OPTION>
+
+                            <OPTION value="1922@INNTXLETEGDM@اقدامات INNT">
+                                اقدامات INNT
+                            </OPTION>
+
+                            <OPTION value="1771@ISMSXLETEGDM@اقدامات ISMS">
+                                اقدامات ISMS
+                            </OPTION>
+
+                            <OPTION value="1810@ITEJXLETEGDM@اقدامات ITEJ">
+                                اقدامات ITEJ
+                            </OPTION>
+
+                            <OPTION value="1842@PLSHXLETEGDM@اقدامات PLSH">
+                                اقدامات PLSH
+                            </OPTION>
+
+                            <OPTION value="1872@RISKXLETEGDM@اقدامات RISK">
+                                اقدامات RISK
+                            </OPTION>
+
+                            <OPTION value="1142@SAZNXLETEGDM@اقدامات SAZN">
+                                اقدامات SAZN
+                            </OPTION>
+
+                            <OPTION value="1933@SLCTXLETEGDM@اقدامات SLCT">
+                                اقدامات SLCT
+                            </OPTION>
+
+                            <OPTION value="1969@THENXLETEGDM@اقدامات THEN">
+                                اقدامات THEN
+                            </OPTION>
+
+                            <OPTION value="1963@THNWXLETEGDM@اقدامات THNW">
+                                اقدامات THNW
+                            </OPTION>
+
+                            <OPTION value="1862@THWCXLETEGDM@اقدامات THWC">
+                                اقدامات THWC
+                            </OPTION>
+
+                            <OPTION value="831@THNXLETEGDM@اقدامات thn">
+                                اقدامات thn
+                            </OPTION>
+
+                            <OPTION value="2325@EGHDAMAT@اقدامات نامه ها">
+                                اقدامات نامه ها
+                            </OPTION>
+
+                            <OPTION value="1950@ARZIXSIGNERS@امضاکنندگان ARZI">
+                                امضاکنندگان ARZI
+                            </OPTION>
+
+                            <OPTION value="1889@CNTRXSIGNERS@امضاکنندگان CNTR">
+                                امضاکنندگان CNTR
+                            </OPTION>
+
+                            <OPTION value="1793@CRDTXSIGNERS@امضاکنندگان CRDT">
+                                امضاکنندگان CRDT
+                            </OPTION>
+
+                            <OPTION value="1960@ENSNXSIGNERS@امضاکنندگان ENSN">
+                                امضاکنندگان ENSN
+                            </OPTION>
+
+                            <OPTION value="1859@HOGHXSIGNERS@امضاکنندگان HOGH">
+                                امضاکنندگان HOGH
+                            </OPTION>
+
+                            <OPTION value="1930@INNTXSIGNERS@امضاکنندگان INNT">
+                                امضاکنندگان INNT
+                            </OPTION>
+
+                            <OPTION value="1777@ISMSXSIGNERS@امضاکنندگان ISMS">
+                                امضاکنندگان ISMS
+                            </OPTION>
+
+                            <OPTION value="1817@ITEJXSIGNERS@امضاکنندگان ITEJ">
+                                امضاکنندگان ITEJ
+                            </OPTION>
+
+                            <OPTION value="1849@PLSHXSIGNERS@امضاکنندگان PLSH">
+                                امضاکنندگان PLSH
+                            </OPTION>
+
+                            <OPTION value="1879@RISKXSIGNERS@امضاکنندگان RISK">
+                                امضاکنندگان RISK
+                            </OPTION>
+
+                            <OPTION value="1150@SAZNXSIGNERS@امضاکنندگان SAZN">
+                                امضاکنندگان SAZN
+                            </OPTION>
+
+                            <OPTION value="1940@SLCTXSIGNERS@امضاکنندگان SLCT">
+                                امضاکنندگان SLCT
+                            </OPTION>
+
+                            <OPTION value="1977@THENXSIGNERS@امضاکنندگان THEN">
+                                امضاکنندگان THEN
+                            </OPTION>
+
+                            <OPTION value="1970@THNWXSIGNERS@امضاکنندگان THNW">
+                                امضاکنندگان THNW
+                            </OPTION>
+
+                            <OPTION value="1869@THWCXSIGNERS@امضاکنندگان THWC">
+                                امضاکنندگان THWC
+                            </OPTION>
+
+                            <OPTION value="838@THNXSIGNERS@امضاکنندگان thn">
+                                امضاکنندگان thn
+                            </OPTION>
+
+                            <OPTION value="982@DEPSELECT@انتخاب سمت ها">
+                                انتخاب سمت ها
+                            </OPTION>
+
+                            <OPTION value="1517@SCHEDULE@انتخاب واحد">
+                                انتخاب واحد
+                            </OPTION>
+
+                            <OPTION value="1001@ENTESHAR@انتشار اطلاعات">
+                                انتشار اطلاعات
+                            </OPTION>
+
+                            <OPTION value="821@TRANSFER@انتقال اطلاعات">
+                                انتقال اطلاعات
+                            </OPTION>
+
+                            <OPTION value="3456@TRANSINFO@انتقال اطلاعات تست">
+                                انتقال اطلاعات تست
+                            </OPTION>
+
+                            <OPTION value="1765@MOVE@انتقال تلفن">
+                                انتقال تلفن
+                            </OPTION>
+
+                            <OPTION value="1668@TDOCAT@انواع اسناد">
+                                انواع اسناد
+                            </OPTION>
+
+                            <OPTION value="2390@BIMEOFFICE@انواع دفاتر شبکه فروش بیمه">
+                                انواع دفاتر شبکه فروش بیمه
+                            </OPTION>
+
+                            <OPTION value="1062@ACTIVITYTYPE@انواع فعالیت">
+                                انواع فعالیت
+                            </OPTION>
+
+                            <OPTION value="1361@ACTIVITYTYPC@انواع فعالیت مرکز">
+                                انواع فعالیت مرکز
+                            </OPTION>
+
+                            <OPTION value="1402@TYPEMADRAK@انواع مدارک">
+                                انواع مدارک
+                            </OPTION>
+
+                            <OPTION value="2896@TYPEOFDOCS@انواع مستندات">
+                                انواع مستندات
+                            </OPTION>
+
+                            <OPTION value="1739@TRETIREMENT@بازنشستگی">
+                                بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="1742@TRETIREMENTC@بازنشستگی محرمانه">
+                                بازنشستگی محرمانه
+                            </OPTION>
+
+                            <OPTION value="251@HIGHMANAGER@بالاترین مقام هر حوزه">
+                                بالاترین مقام هر حوزه
+                            </OPTION>
+
+                            <OPTION value="522@BANKMARKAZI@بانک مرکزی">
+                                بانک مرکزی
+                            </OPTION>
+
+                            <OPTION value="1443@BANKS@بانک ها">
+                                بانک ها
+                            </OPTION>
+
+                            <OPTION value="2514@BUGDEL@باگ دل">
+                                باگ دل
+                            </OPTION>
+
+                            <OPTION value="1621@BAKHSHNAME@بخش نامه">
+                                بخش نامه
+                            </OPTION>
+
+                            <OPTION value="961@BAKHSHNAMEH@بخشنامه">
+                                بخشنامه
+                            </OPTION>
+
+                            <OPTION value="1710@BPAYE@بخشنامه_اطلاعات پایه">
+                                بخشنامه_اطلاعات پایه
+                            </OPTION>
+
+                            <OPTION value="3315@ESTCHECK@بررسی استعلام">
+                                بررسی استعلام
+                            </OPTION>
+
+                            <OPTION value="3199@FRAUD@بررسی رویداد">
+                                بررسی رویداد
+                            </OPTION>
+
+                            <OPTION value="3175@UNKNOWNEVENT@بررسی رویداد نامتعارف">
+                                بررسی رویداد نامتعارف
+                            </OPTION>
+
+                            <OPTION value="303@ISCFACCONS@بررسی مغایرت تسهیلات">
+                                بررسی مغایرت تسهیلات
+                            </OPTION>
+
+                            <OPTION value="601@ISCCHECK@بررسی مغایرتها">
+                                بررسی مغایرتها
+                            </OPTION>
+
+                            <OPTION value="1712@ARCPROGSEND@برنامه ارسال">
+                                برنامه ارسال
+                            </OPTION>
+
+                            <OPTION value="3475@IRANREAL@بیمه ایران-نمایندگان حقیقی">
+                                بیمه ایران-نمایندگان حقیقی
+                            </OPTION>
+
+                            <OPTION value="2597@BIMEHGARI@بیمه گری">
+                                بیمه گری
+                            </OPTION>
+
+                            <OPTION value="1909@HISTORY@تاریخ">
+                                تاریخ
+                            </OPTION>
+
+                            <OPTION value="681@HEYATMETDATE@تاریخ جلسات هیئت">
+                                تاریخ جلسات هیئت
+                            </OPTION>
+
+                            <OPTION value="641@MEETDATE@تاریخ جلسات کمیته">
+                                تاریخ جلسات کمیته
+                            </OPTION>
+
+                            <OPTION value="1905@XLETHIST@تاریخچه نامه">
+                                تاریخچه نامه
+                            </OPTION>
+
+                            <OPTION value="1985@ARZIXLETHIST@تاریخچه نامه ARZI">
+                                تاریخچه نامه ARZI
+                            </OPTION>
+
+                            <OPTION value="1885@CNTRXLETHIST@تاریخچه نامه CNTR">
+                                تاریخچه نامه CNTR
+                            </OPTION>
+
+                            <OPTION value="1789@CRDTXLETHIST@تاریخچه نامه CRDT">
+                                تاریخچه نامه CRDT
+                            </OPTION>
+
+                            <OPTION value="2002@ENSNXLETHIST@تاریخچه نامه ENSN">
+                                تاریخچه نامه ENSN
+                            </OPTION>
+
+                            <OPTION value="1855@HOGHXLETHIST@تاریخچه نامه HOGH">
+                                تاریخچه نامه HOGH
+                            </OPTION>
+
+                            <OPTION value="2001@INNTXLETHIST@تاریخچه نامه INNT">
+                                تاریخچه نامه INNT
+                            </OPTION>
+
+                            <OPTION value="1774@ISMSXLETHIST@تاریخچه نامه ISMS">
+                                تاریخچه نامه ISMS
+                            </OPTION>
+
+                            <OPTION value="1813@ITEJXLETHIST@تاریخچه نامه ITEJ">
+                                تاریخچه نامه ITEJ
+                            </OPTION>
+
+                            <OPTION value="1875@RISKXLETHIST@تاریخچه نامه RISK">
+                                تاریخچه نامه RISK
+                            </OPTION>
+
+                            <OPTION value="1910@SAZNXLETHIST@تاریخچه نامه SAZN">
+                                تاریخچه نامه SAZN
+                            </OPTION>
+
+                            <OPTION value="2003@SLCTXLETHIST@تاریخچه نامه SLCT">
+                                تاریخچه نامه SLCT
+                            </OPTION>
+
+                            <OPTION value="1975@THNWXLETHIST@تاریخچه نامه THNW">
+                                تاریخچه نامه THNW
+                            </OPTION>
+
+                            <OPTION value="1865@THWCXLETHIST@تاریخچه نامه THWC">
+                                تاریخچه نامه THWC
+                            </OPTION>
+
+                            <OPTION value="1906@POIUXLETHIST@تاریخچه نامه poiu">
+                                تاریخچه نامه poiu
+                            </OPTION>
+
+                            <OPTION value="1907@RTNCXLETHIST@تاریخچه نامه rtnc">
+                                تاریخچه نامه rtnc
+                            </OPTION>
+
+                            <OPTION value="1904@SXLETHIST@تاریخچه نامه s">
+                                تاریخچه نامه s
+                            </OPTION>
+
+                            <OPTION value="835@THNXLETHIST@تاریخچه نامه thn">
+                                تاریخچه نامه thn
+                            </OPTION>
+
+                            <OPTION value="1688@TPRSINFO@تجارت- اطلاعات شخصی">
+                                تجارت- اطلاعات شخصی
+                            </OPTION>
+
+                            <OPTION value="1689@TEMPLOYEMENT@تجارت- مدارک استخدام">
+                                تجارت- مدارک استخدام
+                            </OPTION>
+
+                            <OPTION value="1727@TSACRIFICE@تجارت-ایثارگری">
+                                تجارت-ایثارگری
+                            </OPTION>
+
+                            <OPTION value="3076@TBAZNESHASTE@تجارت-بازنشستگی">
+                                تجارت-بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="1735@TRETURN@تجارت-بازگشت به کار">
+                                تجارت-بازگشت به کار
+                            </OPTION>
+
+                            <OPTION value="1704@TABET@تجارت-تشویقات">
+                                تجارت-تشویقات
+                            </OPTION>
+
+                            <OPTION value="1725@TPUNISHMENT@تجارت-تنبیهات">
+                                تجارت-تنبیهات
+                            </OPTION>
+
+                            <OPTION value="1723@TINTERDICT@تجارت-حکم ها">
+                                تجارت-حکم ها
+                            </OPTION>
+
+                            <OPTION value="1731@TLEAVE@تجارت-فواصل خدمتی">
+                                تجارت-فواصل خدمتی
+                            </OPTION>
+
+                            <OPTION value="1740@TDEATH@تجارت-فوت">
+                                تجارت-فوت
+                            </OPTION>
+
+                            <OPTION value="3075@TQARARDAD@تجارت-قراردادها">
+                                تجارت-قراردادها
+                            </OPTION>
+
+                            <OPTION value="1733@TCUT@تجارت-قطع رابطه با بانک">
+                                تجارت-قطع رابطه با بانک
+                            </OPTION>
+
+                            <OPTION value="1682@TEDUCATION@تجارت-مدارک تحصیلی">
+                                تجارت-مدارک تحصیلی
+                            </OPTION>
+
+                            <OPTION value="1737@TCOMPLAINTS@تجارت-مراجع رسیدگی به شکایات">
+                                تجارت-مراجع رسیدگی به شکایات
+                            </OPTION>
+
+                            <OPTION value="1728@TRESUME@تجارت-پذیرش سوابق">
+                                تجارت-پذیرش سوابق
+                            </OPTION>
+
+                            <OPTION value="3636@4TEST@تست 4">
+                                تست 4
+                            </OPTION>
+
+                            <OPTION value="1261@TEST9643@تست 9643">
+                                تست 9643
+                            </OPTION>
+
+                            <OPTION value="581@REFAHTEST@تست بانک رفاه">
+                                تست بانک رفاه
+                            </OPTION>
+
+                            <OPTION value="3635@TESTBIJAN@تست بیژن">
+                                تست بیژن
+                            </OPTION>
+
+                            <OPTION value="2252@DATATEST@تست دیتای گردش کار">
+                                تست دیتای گردش کار
+                            </OPTION>
+
+                            <OPTION value="3395@RESULT@تست نتیجه">
+                                تست نتیجه
+                            </OPTION>
+
+                            <OPTION value="2431@TESTPICTYPE@تست نوع تصویر">
+                                تست نوع تصویر
+                            </OPTION>
+
+                            <OPTION value="2695@CUSREGTEST@تست-ارتباط با مشتریان - بازاریابی">
+                                تست-ارتباط با مشتریان - بازاریابی
+                            </OPTION>
+
+                            <OPTION value="2595@100@تست100">
+                                تست100
+                            </OPTION>
+
+                            <OPTION value="1743@TESTY@تست1000">
+                                تست1000
+                            </OPTION>
+
+                            <OPTION value="1684@TESTI@تست15">
+                                تست15
+                            </OPTION>
+
+                            <OPTION value="3238@TEST12@تست21">
+                                تست21
+                            </OPTION>
+
+                            <OPTION value="1221@TESTI961@تستی 961">
+                                تستی 961
+                            </OPTION>
+
+                            <OPTION value="2471@TESTIIIII@تستییییی">
+                                تستییییی
+                            </OPTION>
+
+                            <OPTION value="790@FACILITIES@تسهیلات">
+                                تسهیلات
+                            </OPTION>
+
+                            <OPTION value="2276@SPECIAL@تشخیص بیماری خاص">
+                                تشخیص بیماری خاص
+                            </OPTION>
+
+                            <OPTION value="3120@IMAGES@تصاویر قرارداد">
+                                تصاویر قرارداد
+                            </OPTION>
+
+                            <OPTION value="62@DABIRKHANE@تعریف دبیرخانه">
+                                تعریف دبیرخانه
+                            </OPTION>
+
+                            <OPTION value="2021@PERMISSION@تعریف سطح دسترسی">
+                                تعریف سطح دسترسی
+                            </OPTION>
+
+                            <OPTION value="563@PROCESSES@تعریف فرآیندها">
+                                تعریف فرآیندها
+                            </OPTION>
+
+                            <OPTION value="1061@PUBLICREL@تعریف مناطق روابط عمومی">
+                                تعریف مناطق روابط عمومی
+                            </OPTION>
+
+                            <OPTION value="1404@SELECTMUTT@تعریف کاربران طرح و توسعه">
+                                تعریف کاربران طرح و توسعه
+                            </OPTION>
+
+                            <OPTION value="562@PROCESSGROUP@تعریف گروه فرایند">
+                                تعریف گروه فرایند
+                            </OPTION>
+
+                            <OPTION value="67@USERSD@تعیین کاربران دبیرخانه">
+                                تعیین کاربران دبیرخانه
+                            </OPTION>
+
+                            <OPTION value="1821@TCHANGE@تغییر عنوان پست سازمانی">
+                                تغییر عنوان پست سازمانی
+                            </OPTION>
+
+                            <OPTION value="1764@REGISTERY@تلفن">
+                                تلفن
+                            </OPTION>
+
+                            <OPTION value="1711@ARCTELPERSON@تلفن اشخاص">
+                                تلفن اشخاص
+                            </OPTION>
+
+                            <OPTION value="3121@ESTSETTING@تنظیمات استعلام">
+                                تنظیمات استعلام
+                            </OPTION>
+
+                            <OPTION value="3195@EVENTSETTING@تنظیمات رویداد">
+                                تنظیمات رویداد
+                            </OPTION>
+
+                            <OPTION value="3555@RUIDADPARAM@تنظیمات گردش کار رویداد">
+                                تنظیمات گردش کار رویداد
+                            </OPTION>
+
+                            <OPTION value="1761@JABEJAEE@جابجایی تلفن">
+                                جابجایی تلفن
+                            </OPTION>
+
+                            <OPTION value="1820@TRNSMSNDOC@جابجایی و انتقال">
+                                جابجایی و انتقال
+                            </OPTION>
+
+                            <OPTION value="202@WFESEARCH@جستجو در گردش کارها">
+                                جستجو در گردش کارها
+                            </OPTION>
+
+                            <OPTION value="2310@SSEARCH@جستجوی امورکارکنان">
+                                جستجوی امورکارکنان
+                            </OPTION>
+
+                            <OPTION value="321@SERCHPEIGIRI@جستجوی موارد پیگیری">
+                                جستجوی موارد پیگیری
+                            </OPTION>
+
+                            <OPTION value="883@FAKE@جعل">
+                                جعل
+                            </OPTION>
+
+                            <OPTION value="1022@GENERIC@جنریک">
+                                جنریک
+                            </OPTION>
+
+                            <OPTION value="2378@BINFO@حراست بیمه ایران- مشخصات پرسنلی">
+                                حراست بیمه ایران- مشخصات پرسنلی
+                            </OPTION>
+
+                            <OPTION value="2377@BLETTER@حراست بیمه ایران- مکاتبات اسناد">
+                                حراست بیمه ایران- مکاتبات اسناد
+                            </OPTION>
+
+                            <OPTION value="503@HEFAZAT@حق الحفاظه">
+                                حق الحفاظه
+                            </OPTION>
+
+                            <OPTION value="3298@DOCACCESSDOM@حوزه دسترسی به اسناد">
+                                حوزه دسترسی به اسناد
+                            </OPTION>
+
+                            <OPTION value="2243@SADERAT@حکم ها-صادرات">
+                                حکم ها-صادرات
+                            </OPTION>
+
+                            <OPTION value="1762@SERVIS@خدمات تلفن">
+                                خدمات تلفن
+                            </OPTION>
+
+                            <OPTION value="64@KHEDMATP@خدمت پستی">
+                                خدمت پستی
+                            </OPTION>
+
+                            <OPTION value="1513@STUDENTS@دانشجویی">
+                                دانشجویی
+                            </OPTION>
+
+                            <OPTION value="533@DAYERE@دایره ارجاع کننده">
+                                دایره ارجاع کننده
+                            </OPTION>
+
+                            <OPTION value="501@PEIGIRIEND@دایره پیگیری">
+                                دایره پیگیری
+                            </OPTION>
+
+                            <OPTION value="1587@RPTCARD@درج در کارنامه">
+                                درج در کارنامه
+                            </OPTION>
+
+                            <OPTION value="967@SOFTWAREREQ@درخواست تولید نرم افزار">
+                                درخواست تولید نرم افزار
+                            </OPTION>
+
+                            <OPTION value="3575@MORAKHASI0@درخواست مرخصی">
+                                درخواست مرخصی
+                            </OPTION>
+
+                            <OPTION value="1524@CORS@درس">
+                                درس
+                            </OPTION>
+
+                            <OPTION value="701@MSVBPERACCES@دسترسی اطلاعات پرسنلی">
+                                دسترسی اطلاعات پرسنلی
+                            </OPTION>
+
+                            <OPTION value="968@BAKHSHACCESS@دسترسی بخشنامه">
+                                دسترسی بخشنامه
+                            </OPTION>
+
+                            <OPTION value="1301@ACCESSFREG@دسترسی به فعالیت های منطقه">
+                                دسترسی به فعالیت های منطقه
+                            </OPTION>
+
+                            <OPTION value="2151@SHABAKEH@دسترسی شبکه">
+                                دسترسی شبکه
+                            </OPTION>
+
+                            <OPTION value="561@PEIGREPACCES@دسترسی گزارش های پیگیری">
+                                دسترسی گزارش های پیگیری
+                            </OPTION>
+
+                            <OPTION value="101@HELPMRS@راهنما مراسلات">
+                                راهنما مراسلات
+                            </OPTION>
+
+                            <OPTION value="102@HELPMRS1@راهنما مراسلات1">
+                                راهنما مراسلات1
+                            </OPTION>
+
+                            <OPTION value="3663@RSELECTMUTT@رسالت تعریف کاربران">
+                                رسالت تعریف کاربران
+                            </OPTION>
+
+                            <OPTION value="3664@RTYPEMADRAK@رسالت-انواع مدارک">
+                                رسالت-انواع مدارک
+                            </OPTION>
+
+                            <OPTION value="3662@RBAKHSHNAME@رسالت-بخشنامه ها">
+                                رسالت-بخشنامه ها
+                            </OPTION>
+
+                            <OPTION value="3665@RBAKHSHNAMEV@رسالت-مشاهده بخشنامه">
+                                رسالت-مشاهده بخشنامه
+                            </OPTION>
+
+                            <OPTION value="302@REFINSREG@رفاه-بازرسی-منطقه">
+                                رفاه-بازرسی-منطقه
+                            </OPTION>
+
+                            <OPTION value="1945@ARZIXLETGRND@رونوشت گیرندگان ARZI">
+                                رونوشت گیرندگان ARZI
+                            </OPTION>
+
+                            <OPTION value="1884@CNTRXLETGRND@رونوشت گیرندگان CNTR">
+                                رونوشت گیرندگان CNTR
+                            </OPTION>
+
+                            <OPTION value="1788@CRDTXLETGRND@رونوشت گیرندگان CRDT">
+                                رونوشت گیرندگان CRDT
+                            </OPTION>
+
+                            <OPTION value="1955@ENSNXLETGRND@رونوشت گیرندگان ENSN">
+                                رونوشت گیرندگان ENSN
+                            </OPTION>
+
+                            <OPTION value="1854@HOGHXLETGRND@رونوشت گیرندگان HOGH">
+                                رونوشت گیرندگان HOGH
+                            </OPTION>
+
+                            <OPTION value="1925@INNTXLETGRND@رونوشت گیرندگان INNT">
+                                رونوشت گیرندگان INNT
+                            </OPTION>
+
+                            <OPTION value="1773@ISMSXLETGRND@رونوشت گیرندگان ISMS">
+                                رونوشت گیرندگان ISMS
+                            </OPTION>
+
+                            <OPTION value="1812@ITEJXLETGRND@رونوشت گیرندگان ITEJ">
+                                رونوشت گیرندگان ITEJ
+                            </OPTION>
+
+                            <OPTION value="1844@PLSHXLETGRND@رونوشت گیرندگان PLSH">
+                                رونوشت گیرندگان PLSH
+                            </OPTION>
+
+                            <OPTION value="1874@RISKXLETGRND@رونوشت گیرندگان RISK">
+                                رونوشت گیرندگان RISK
+                            </OPTION>
+
+                            <OPTION value="1144@SAZNXLETGRND@رونوشت گیرندگان SAZN">
+                                رونوشت گیرندگان SAZN
+                            </OPTION>
+
+                            <OPTION value="1935@SLCTXLETGRND@رونوشت گیرندگان SLCT">
+                                رونوشت گیرندگان SLCT
+                            </OPTION>
+
+                            <OPTION value="1972@THENXLETGRND@رونوشت گیرندگان THEN">
+                                رونوشت گیرندگان THEN
+                            </OPTION>
+
+                            <OPTION value="1964@THNWXLETGRND@رونوشت گیرندگان THNW">
+                                رونوشت گیرندگان THNW
+                            </OPTION>
+
+                            <OPTION value="1864@THWCXLETGRND@رونوشت گیرندگان THWC">
+                                رونوشت گیرندگان THWC
+                            </OPTION>
+
+                            <OPTION value="834@THNXLETGRND@رونوشت گیرندگان thn">
+                                رونوشت گیرندگان thn
+                            </OPTION>
+
+                            <OPTION value="2716@CREDITEVENT@رویدادهای سوابق اسناد اعتباری">
+                                رویدادهای سوابق اسناد اعتباری
+                            </OPTION>
+
+                            <OPTION value="862@CHAIN@زنجیره گردش کار">
+                                زنجیره گردش کار
+                            </OPTION>
+
+                            <OPTION value="1544@MASNDVAHED@س واحدهای تحصیلی">
+                                س واحدهای تحصیلی
+                            </OPTION>
+
+                            <OPTION value="1543@MASNDKARNAME@س کارنامه">
+                                س کارنامه
+                            </OPTION>
+
+                            <OPTION value="2326@SATNAPAYA@ساتنا و پایا">
+                                ساتنا و پایا
+                            </OPTION>
+
+                            <OPTION value="506@SAKHTEMAN@ساختمان">
+                                ساختمان
+                            </OPTION>
+
+                            <OPTION value="535@SAMPLE@ساده">
+                                ساده
+                            </OPTION>
+
+                            <OPTION value="1@DEPARTMENT@سازمانهای مشترک">
+                                سازمانهای مشترک
+                            </OPTION>
+
+                            <OPTION value="3659@DEPWITHPER@سازمان‌های اتوماسیون اداری همراه با شخص">
+                                سازمان‌های اتوماسیون اداری همراه با شخص
+                            </OPTION>
+
+                            <OPTION value="1509@TRANSMAP@ساماش  - الحاق">
+                                ساماش  - الحاق
+                            </OPTION>
+
+                            <OPTION value="1243@DAILYDOCS@ساماش - اسناد روزانه">
+                                ساماش - اسناد روزانه
+                            </OPTION>
+
+                            <OPTION value="1595@SAMSHFRMSCRT@ساماش - اسکریپت فرم">
+                                ساماش - اسکریپت فرم
+                            </OPTION>
+
+                            <OPTION value="1510@WEBSRVTYPE@ساماش - انواع سرویس">
+                                ساماش - انواع سرویس
+                            </OPTION>
+
+                            <OPTION value="1242@TAHVILDAR@ساماش - تحویلدارها">
+                                ساماش - تحویلدارها
+                            </OPTION>
+
+                            <OPTION value="1507@TRANSACTION@ساماش - تراکنش ها">
+                                ساماش - تراکنش ها
+                            </OPTION>
+
+                            <OPTION value="1593@SAMASHCONFIG@ساماش - تنظیمات سیستم">
+                                ساماش - تنظیمات سیستم
+                            </OPTION>
+
+                            <OPTION value="1505@DOCPROPERTY@ساماش - تکمیلی اسناد روزانه">
+                                ساماش - تکمیلی اسناد روزانه
+                            </OPTION>
+
+                            <OPTION value="1508@TRANSPROP@ساماش - تکمیلی تراکنش ها">
+                                ساماش - تکمیلی تراکنش ها
+                            </OPTION>
+
+                            <OPTION value="1661@SAMASHSERCH@ساماش - جستجوها">
+                                ساماش - جستجوها
+                            </OPTION>
+
+                            <OPTION value="3275@DAILYDOCSAX@ساماش - دسترسی">
+                                ساماش - دسترسی
+                            </OPTION>
+
+                            <OPTION value="1502@SHOBETIME@ساماش - زمان بندی شعب">
+                                ساماش - زمان بندی شعب
+                            </OPTION>
+
+                            <OPTION value="1241@SHOBE@ساماش - شعب">
+                                ساماش - شعب
+                            </OPTION>
+
+                            <OPTION value="3297@SHOBE2@ساماش - شعب2">
+                                ساماش - شعب2
+                            </OPTION>
+
+                            <OPTION value="1506@SHEHA@ساماش - شها">
+                                ساماش - شها
+                            </OPTION>
+
+                            <OPTION value="3055@SHOABROOZ@ساماش - عملکرد روزانه شعب">
+                                ساماش - عملکرد روزانه شعب
+                            </OPTION>
+
+                            <OPTION value="1511@WEBSRVUSE@ساماش - فراخوانی وب سرویس">
+                                ساماش - فراخوانی وب سرویس
+                            </OPTION>
+
+                            <OPTION value="1244@SAMASHFORM@ساماش - فرم ها">
+                                ساماش - فرم ها
+                            </OPTION>
+
+                            <OPTION value="1322@DMSCACTARC@ساماش - فعال سازی شعب">
+                                ساماش - فعال سازی شعب
+                            </OPTION>
+
+                            <OPTION value="1245@MANATEGH@ساماش - مناطق">
+                                ساماش - مناطق
+                            </OPTION>
+
+                            <OPTION value="1592@SAMASHMENU@ساماش - منوها">
+                                ساماش - منوها
+                            </OPTION>
+
+                            <OPTION value="1504@SHOBEINSTALL@ساماش - نصب شعب">
+                                ساماش - نصب شعب
+                            </OPTION>
+
+                            <OPTION value="1281@DOSTYPE@ساماش - نوع اسناد">
+                                ساماش - نوع اسناد
+                            </OPTION>
+
+                            <OPTION value="1503@SHOBEUSERS@ساماش - کاربران شعب">
+                                ساماش - کاربران شعب
+                            </OPTION>
+
+                            <OPTION value="1647@NASBUSERS@ساماش - کاربران نصب شعب">
+                                ساماش - کاربران نصب شعب
+                            </OPTION>
+
+                            <OPTION value="1644@ASNADREP@ساماش - گزارش اسناد">
+                                ساماش - گزارش اسناد
+                            </OPTION>
+
+                            <OPTION value="1646@TRANSREP@ساماش - گزارش تراکنشها">
+                                ساماش - گزارش تراکنشها
+                            </OPTION>
+
+                            <OPTION value="1686@DAILYDOCVW@ساماش -جستجوی اسناد روزانه">
+                                ساماش -جستجوی اسناد روزانه
+                            </OPTION>
+
+                            <OPTION value="1501@SHOBETECH@ساماش- فنی شعب">
+                                ساماش- فنی شعب
+                            </OPTION>
+
+                            <OPTION value="3515@SAYER@سایر">
+                                سایر
+                            </OPTION>
+
+                            <OPTION value="2398@BSAYER@سایر بیمه ایران">
+                                سایر بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="126@PERREMAIN@سایر مدارک پرسنلی">
+                                سایر مدارک پرسنلی
+                            </OPTION>
+
+                            <OPTION value="962@PERSONDEP@سمت اشخاص">
+                                سمت اشخاص
+                            </OPTION>
+
+                            <OPTION value="1949@ARZIXPOSTCNV@سمت های جدید ARZI">
+                                سمت های جدید ARZI
+                            </OPTION>
+
+                            <OPTION value="1888@CNTRXPOSTCNV@سمت های جدید CNTR">
+                                سمت های جدید CNTR
+                            </OPTION>
+
+                            <OPTION value="1792@CRDTXPOSTCNV@سمت های جدید CRDT">
+                                سمت های جدید CRDT
+                            </OPTION>
+
+                            <OPTION value="1959@ENSNXPOSTCNV@سمت های جدید ENSN">
+                                سمت های جدید ENSN
+                            </OPTION>
+
+                            <OPTION value="1858@HOGHXPOSTCNV@سمت های جدید HOGH">
+                                سمت های جدید HOGH
+                            </OPTION>
+
+                            <OPTION value="1929@INNTXPOSTCNV@سمت های جدید INNT">
+                                سمت های جدید INNT
+                            </OPTION>
+
+                            <OPTION value="1776@ISMSXPOSTCNV@سمت های جدید ISMS">
+                                سمت های جدید ISMS
+                            </OPTION>
+
+                            <OPTION value="1816@ITEJXPOSTCNV@سمت های جدید ITEJ">
+                                سمت های جدید ITEJ
+                            </OPTION>
+
+                            <OPTION value="1848@PLSHXPOSTCNV@سمت های جدید PLSH">
+                                سمت های جدید PLSH
+                            </OPTION>
+
+                            <OPTION value="1878@RISKXPOSTCNV@سمت های جدید RISK">
+                                سمت های جدید RISK
+                            </OPTION>
+
+                            <OPTION value="1149@SAZNXPOSTCNV@سمت های جدید SAZN">
+                                سمت های جدید SAZN
+                            </OPTION>
+
+                            <OPTION value="1939@SLCTXPOSTCNV@سمت های جدید SLCT">
+                                سمت های جدید SLCT
+                            </OPTION>
+
+                            <OPTION value="1980@THENXPOSTCNV@سمت های جدید THEN">
+                                سمت های جدید THEN
+                            </OPTION>
+
+                            <OPTION value="1968@THNWXPOSTCNV@سمت های جدید THNW">
+                                سمت های جدید THNW
+                            </OPTION>
+
+                            <OPTION value="1868@THWCXPOSTCNV@سمت های جدید THWC">
+                                سمت های جدید THWC
+                            </OPTION>
+
+                            <OPTION value="840@THNXPOSTCNV@سمت های جدید thn">
+                                سمت های جدید thn
+                            </OPTION>
+
+                            <OPTION value="1707@SANADDEL@سند دل">
+                                سند دل
+                            </OPTION>
+
+                            <OPTION value="463@MYPARVANDEH@سند مأموریت من">
+                                سند مأموریت من
+                            </OPTION>
+
+                            <OPTION value="129@SAVABEGH@سوابق خدمتی">
+                                سوابق خدمتی
+                            </OPTION>
+
+                            <OPTION value="2637@WFEHISTORY@سوابق گردش کار">
+                                سوابق گردش کار
+                            </OPTION>
+
+                            <OPTION value="24@KPI@شاخص کلیدی عملکرد">
+                                شاخص کلیدی عملکرد
+                            </OPTION>
+
+                            <OPTION value="3455@SHAHED@شاهد">
+                                شاهد
+                            </OPTION>
+
+                            <OPTION value="2275@KHADAMAT@شرح خدمات">
+                                شرح خدمات
+                            </OPTION>
+
+                            <OPTION value="3123@SHOABEST@شعب - استعلام">
+                                شعب - استعلام
+                            </OPTION>
+
+                            <OPTION value="2373@SHOABMOZAKER@شعب مذاکره کننده">
+                                شعب مذاکره کننده
+                            </OPTION>
+
+                            <OPTION value="1041@SHOAB@شعب-باجه">
+                                شعب-باجه
+                            </OPTION>
+
+                            <OPTION value="882@BRANCH@شعبه">
+                                شعبه
+                            </OPTION>
+
+                            <OPTION value="3197@SHOBEUSER@شعبه وکاربران شعبه">
+                                شعبه وکاربران شعبه
+                            </OPTION>
+
+                            <OPTION value="1525@PRICE@شهریه">
+                                شهریه
+                            </OPTION>
+
+                            <OPTION value="2285@SKOMITE@صادرات- آرای کمیته انضباطی">
+                                صادرات- آرای کمیته انضباطی
+                            </OPTION>
+
+                            <OPTION value="2278@SAHKAM@صادرات- احکام">
+                                صادرات- احکام
+                            </OPTION>
+
+                            <OPTION value="2661@SENTESABAT@صادرات- انتصابات">
+                                صادرات- انتصابات
+                            </OPTION>
+
+                            <OPTION value="2211@SPRSINFO@صادرات- اوراق هویتی">
+                                صادرات- اوراق هویتی
+                            </OPTION>
+
+                            <OPTION value="2656@BHOQUQ@صادرات- بدون حقوق">
+                                صادرات- بدون حقوق
+                            </OPTION>
+
+                            <OPTION value="2282@SARZESH@صادرات- برگه های ارزشیابی ها">
+                                صادرات- برگه های ارزشیابی ها
+                            </OPTION>
+
+                            <OPTION value="2284@SBIME@صادرات- بیمه عمر و آتیه">
+                                صادرات- بیمه عمر و آتیه
+                            </OPTION>
+
+                            <OPTION value="2286@STANDT@صادرات- تشویقات">
+                                صادرات- تشویقات
+                            </OPTION>
+
+                            <OPTION value="2288@SDAD@صادرات- دادگاه و مراجع قضایی">
+                                صادرات- دادگاه و مراجع قضایی
+                            </OPTION>
+
+                            <OPTION value="2213@SGTYPE@صادرات- دسته بندی">
+                                صادرات- دسته بندی
+                            </OPTION>
+
+                            <OPTION value="2289@SSAYER@صادرات- سایر">
+                                صادرات- سایر
+                            </OPTION>
+
+                            <OPTION value="2279@SISAR@صادرات- سوابق ایثارگری">
+                                صادرات- سوابق ایثارگری
+                            </OPTION>
+
+                            <OPTION value="2287@SBAZNEHASTE@صادرات- سوابق بازنشستگی">
+                                صادرات- سوابق بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="2283@SSAVABEQ@صادرات- سوابق خارج از بانک">
+                                صادرات- سوابق خارج از بانک
+                            </OPTION>
+
+                            <OPTION value="2659@SFOQOLADE@صادرات- سوابق فوق العاده">
+                                صادرات- سوابق فوق العاده
+                            </OPTION>
+
+                            <OPTION value="2281@SQARARDAD@صادرات- قراردادها">
+                                صادرات- قراردادها
+                            </OPTION>
+
+                            <OPTION value="2277@STAHSIL@صادرات- مدارک تحصیلی">
+                                صادرات- مدارک تحصیلی
+                            </OPTION>
+
+                            <OPTION value="2280@SMORAKHASI@صادرات- مرخصی ها">
+                                صادرات- مرخصی ها
+                            </OPTION>
+
+                            <OPTION value="2290@SINFO@صادرات- مشخصات">
+                                صادرات- مشخصات
+                            </OPTION>
+
+                            <OPTION value="2236@SMOKTHS@صادرات- مکاتبات  تحصیلی">
+                                صادرات- مکاتبات  تحصیلی
+                            </OPTION>
+
+                            <OPTION value="2316@SMOKKOMITE@صادرات- مکاتبات آرای کمیته انضباطی">
+                                صادرات- مکاتبات آرای کمیته انضباطی
+                            </OPTION>
+
+                            <OPTION value="2237@SMOKAHKM@صادرات- مکاتبات احکام">
+                                صادرات- مکاتبات احکام
+                            </OPTION>
+
+                            <OPTION value="2435@SMOKSTELAM@صادرات- مکاتبات استعلام">
+                                صادرات- مکاتبات استعلام
+                            </OPTION>
+
+                            <OPTION value="2214@SLETTER@صادرات- مکاتبات اسناد">
+                                صادرات- مکاتبات اسناد
+                            </OPTION>
+
+                            <OPTION value="2217@SIDINFO@صادرات- مکاتبات اوراق هویتی">
+                                صادرات- مکاتبات اوراق هویتی
+                            </OPTION>
+
+                            <OPTION value="2238@SMOKISAR@صادرات- مکاتبات ایثارگری">
+                                صادرات- مکاتبات ایثارگری
+                            </OPTION>
+
+                            <OPTION value="2437@SMOKBEGIN@صادرات- مکاتبات بدو استخدام">
+                                صادرات- مکاتبات بدو استخدام
+                            </OPTION>
+
+                            <OPTION value="2312@SMOKARZESH@صادرات- مکاتبات برگه های ارزشیابی ها">
+                                صادرات- مکاتبات برگه های ارزشیابی ها
+                            </OPTION>
+
+                            <OPTION value="2314@SMOKBIME@صادرات- مکاتبات بیمه عمر و آتیه">
+                                صادرات- مکاتبات بیمه عمر و آتیه
+                            </OPTION>
+
+                            <OPTION value="2319@SMOKTANDT@صادرات- مکاتبات تشویق و تنبیه">
+                                صادرات- مکاتبات تشویق و تنبیه
+                            </OPTION>
+
+                            <OPTION value="2315@SMOKDAD@صادرات- مکاتبات دادگاه و مراجع قضایی">
+                                صادرات- مکاتبات دادگاه و مراجع قضایی
+                            </OPTION>
+
+                            <OPTION value="2318@SMOKSAYER@صادرات- مکاتبات سایر">
+                                صادرات- مکاتبات سایر
+                            </OPTION>
+
+                            <OPTION value="2313@SMOKBAZ@صادرات- مکاتبات سوابق بازنشستگی">
+                                صادرات- مکاتبات سوابق بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="2317@SMOKSAVABEQ@صادرات- مکاتبات سوابق خارج از بانک">
+                                صادرات- مکاتبات سوابق خارج از بانک
+                            </OPTION>
+
+                            <OPTION value="2660@SMOKFOQOLADE@صادرات- مکاتبات سوابق فوق العاده ها">
+                                صادرات- مکاتبات سوابق فوق العاده ها
+                            </OPTION>
+
+                            <OPTION value="2241@SMOKQARAR@صادرات- مکاتبات قراردادها">
+                                صادرات- مکاتبات قراردادها
+                            </OPTION>
+
+                            <OPTION value="2239@SMOKMOR@صادرات- مکاتبات مرخصی ها">
+                                صادرات- مکاتبات مرخصی ها
+                            </OPTION>
+
+                            <OPTION value="2436@SMOKGOVAHI@صادرات- مکاتبات گواهی">
+                                صادرات- مکاتبات گواهی
+                            </OPTION>
+
+                            <OPTION value="2432@SGOVAHI@صادرات- گواهی">
+                                صادرات- گواهی
+                            </OPTION>
+
+                            <OPTION value="2212@TGROUP@صادرات-انواع دسته بندی">
+                                صادرات-انواع دسته بندی
+                            </OPTION>
+
+                            <OPTION value="2433@SBEGIN@صادرات-بدو استخدام">
+                                صادرات-بدو استخدام
+                            </OPTION>
+
+                            <OPTION value="2657@ENTESABAT@صادرات-سوابق انتصابات">
+                                صادرات-سوابق انتصابات
+                            </OPTION>
+
+                            <OPTION value="2655@FOQOLADE@صادرات-سوابق فوق العاده ها">
+                                صادرات-سوابق فوق العاده ها
+                            </OPTION>
+
+                            <OPTION value="2662@SMOKENTSABAT@صادرات-مکاتبات انتسابات">
+                                صادرات-مکاتبات انتسابات
+                            </OPTION>
+
+                            <OPTION value="2658@SMOKBHOQUQ@صادرات-مکاتبات بدون حقوق">
+                                صادرات-مکاتبات بدون حقوق
+                            </OPTION>
+
+                            <OPTION value="2664@SMOKNAQL@صادرات-مکاتبات نقل و انتقال">
+                                صادرات-مکاتبات نقل و انتقال
+                            </OPTION>
+
+                            <OPTION value="2665@SNAQL@صادرات-نقل و انتقال">
+                                صادرات-نقل و انتقال
+                            </OPTION>
+
+                            <OPTION value="504@AMANAT@صندوق امانات">
+                                صندوق امانات
+                            </OPTION>
+
+                            <OPTION value="1342@TJSCONTRACT@صورت وضعیت تجارت - قرارداد">
+                                صورت وضعیت تجارت - قرارداد
+                            </OPTION>
+
+                            <OPTION value="1344@TJSTAKHALLOF@صورت وضعیت تجارت- تخلف">
+                                صورت وضعیت تجارت- تخلف
+                            </OPTION>
+
+                            <OPTION value="1343@TJSREQUEST@صورت وضعیت تجارت-درخواست">
+                                صورت وضعیت تجارت-درخواست
+                            </OPTION>
+
+                            <OPTION value="1341@TJSCOMPANY@صورت وضعیت تجارت-شرکت">
+                                صورت وضعیت تجارت-شرکت
+                            </OPTION>
+
+                            <OPTION value="3118@SORAT@صورتجلسات">
+                                صورتجلسات
+                            </OPTION>
+
+                            <OPTION value="3457@TEMP@ظرف اطلاعات">
+                                ظرف اطلاعات
+                            </OPTION>
+
+                            <OPTION value="1769@NORMAL@عادی">
+                                عادی
+                            </OPTION>
+
+                            <OPTION value="442@PASSINFO@عملیات رمز عبور">
+                                عملیات رمز عبور
+                            </OPTION>
+
+                            <OPTION value="364@BSIXFLTOGAM@فایلر به گامBSI">
+                                فایلر به گامBSI
+                            </OPTION>
+
+                            <OPTION value="2537@STDXFLTOGAM@فایلر به گامSTD">
+                                فایلر به گامSTD
+                            </OPTION>
+
+                            <OPTION value="2248@THSXFLTOGAM@فایلر به گامTHS">
+                                فایلر به گامTHS
+                            </OPTION>
+
+                            <OPTION value="141@SUGGEST@فرایند پیشنهادات">
+                                فرایند پیشنهادات
+                            </OPTION>
+
+                            <OPTION value="63@GIRANDEGAN@فرستندگان و گیرندگان">
+                                فرستندگان و گیرندگان
+                            </OPTION>
+
+                            <OPTION value="2796@TESTFORM@فرم تستی">
+                                فرم تستی
+                            </OPTION>
+
+                            <OPTION value="3237@TMORKHASI1@فرم درخواست مرخصی1 0">
+                                فرم درخواست مرخصی1 0
+                            </OPTION>
+
+                            <OPTION value="964@SOFTWAREREQ3@فرم3 درخواست تولید نرم افزار">
+                                فرم3 درخواست تولید نرم افزار
+                            </OPTION>
+
+                            <OPTION value="1063@ACTIVITY@فعالیت های روابط عمومی">
+                                فعالیت های روابط عمومی
+                            </OPTION>
+
+                            <OPTION value="2367@BIGBUSTARGET@فهرست بازارهای کلان و هدف">
+                                فهرست بازارهای کلان و هدف
+                            </OPTION>
+
+                            <OPTION value="983@ACCESSIBILIT@قابلیت دسترسی">
+                                قابلیت دسترسی
+                            </OPTION>
+
+                            <OPTION value="2273@ATIECONTRACT@قرارداد آتیه سازان">
+                                قرارداد آتیه سازان
+                            </OPTION>
+
+                            <OPTION value="1722@TAGREMENT@قراردادها">
+                                قراردادها
+                            </OPTION>
+
+                            <OPTION value="2836@VPARENT@مافوقهای مجازی">
+                                مافوقهای مجازی
+                            </OPTION>
+
+                            <OPTION value="404@TASK@ماموریت1">
+                                ماموریت1
+                            </OPTION>
+
+                            <OPTION value="1590@DOCUPACK@مجموعه اسناد">
+                                مجموعه اسناد
+                            </OPTION>
+
+                            <OPTION value="1786@DOCUPACKSMP@مجموعه اسناد - خلاصه">
+                                مجموعه اسناد - خلاصه
+                            </OPTION>
+
+                            <OPTION value="3295@DOCUPACK2@مجموعه اسناد2">
+                                مجموعه اسناد2
+                            </OPTION>
+
+                            <OPTION value="3296@DOCUPACK3@مجموعه اسناد3">
+                                مجموعه اسناد3
+                            </OPTION>
+
+                            <OPTION value="1591@TRANSPACK@مجموعه تراکنش ها">
+                                مجموعه تراکنش ها
+                            </OPTION>
+
+                            <OPTION value="1768@SECURE@محرمانه">
+                                محرمانه
+                            </OPTION>
+
+                            <OPTION value="1724@TINTERDICTC@محرمانه احکام">
+                                محرمانه احکام
+                            </OPTION>
+
+                            <OPTION value="1721@TPRSINFOC@محرمانه اطلاعات شخصی">
+                                محرمانه اطلاعات شخصی
+                            </OPTION>
+
+                            <OPTION value="1730@TSACRIFICEC@محرمانه ایثارگری">
+                                محرمانه ایثارگری
+                            </OPTION>
+
+                            <OPTION value="1736@TRETURNC@محرمانه بازگشت به کار">
+                                محرمانه بازگشت به کار
+                            </OPTION>
+
+                            <OPTION value="1705@TABETC@محرمانه تشویقات">
+                                محرمانه تشویقات
+                            </OPTION>
+
+                            <OPTION value="1726@TPUNISHMENTC@محرمانه تنبیهات">
+                                محرمانه تنبیهات
+                            </OPTION>
+
+                            <OPTION value="1738@TCOMPLAINTSC@محرمانه شکایات خارج از بانک">
+                                محرمانه شکایات خارج از بانک
+                            </OPTION>
+
+                            <OPTION value="1732@TLEAVEC@محرمانه فواصل خدمتی">
+                                محرمانه فواصل خدمتی
+                            </OPTION>
+
+                            <OPTION value="1741@TDEATHC@محرمانه فوت">
+                                محرمانه فوت
+                            </OPTION>
+
+                            <OPTION value="1701@TAGREMENTC@محرمانه قراردادها">
+                                محرمانه قراردادها
+                            </OPTION>
+
+                            <OPTION value="1734@TCUTC@محرمانه قطع رابطه با بانک">
+                                محرمانه قطع رابطه با بانک
+                            </OPTION>
+
+                            <OPTION value="1709@TEDUCATIONC@محرمانه مدارک تحصیلی">
+                                محرمانه مدارک تحصیلی
+                            </OPTION>
+
+                            <OPTION value="1729@TRESUMEC@محرمانه پذیرش سوابق">
+                                محرمانه پذیرش سوابق
+                            </OPTION>
+
+                            <OPTION value="124@OFFICELOC@محل های خدمت">
+                                محل های خدمت
+                            </OPTION>
+
+                            <OPTION value="1401@MADAREKTT@مدارک">
+                                مدارک
+                            </OPTION>
+
+                            <OPTION value="3359@BTAHSILI@مدارک آموزشی بیمه ایران">
+                                مدارک آموزشی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2715@TEMPLOYEC@مدارک استخدام محرمانه">
+                                مدارک استخدام محرمانه
+                            </OPTION>
+
+                            <OPTION value="122@MADAREK@مدارک فردی">
+                                مدارک فردی
+                            </OPTION>
+
+                            <OPTION value="1442@MADAREKTTVP@مدارک فرم های چاپ">
+                                مدارک فرم های چاپ
+                            </OPTION>
+
+                            <OPTION value="2369@CUSTOMERADMI@مدیر مشتری بانک">
+                                مدیر مشتری بانک
+                            </OPTION>
+
+                            <OPTION value="921@ITMANGERS@مدیران فناوری">
+                                مدیران فناوری
+                            </OPTION>
+
+                            <OPTION value="530@MANAGEMEET@مدیریت جلسات">
+                                مدیریت جلسات
+                            </OPTION>
+
+                            <OPTION value="521@EDARAT@مدیریت های امور ادارات">
+                                مدیریت های امور ادارات
+                            </OPTION>
+
+                            <OPTION value="502@MANAGEBRANCH@مدیریت های شعب">
+                                مدیریت های شعب
+                            </OPTION>
+
+                            <OPTION value="1321@MANAGE@مدیریت کنترل دسترسی">
+                                مدیریت کنترل دسترسی
+                            </OPTION>
+
+                            <OPTION value="791@NEGOTIATIONS@مذاکرات">
+                                مذاکرات
+                            </OPTION>
+
+                            <OPTION value="2375@CUSTOMERTALK@مذاکره با مشتری">
+                                مذاکره با مشتری
+                            </OPTION>
+
+                            <OPTION value="2596@CUSTMRTALKMV@مذاکره با مشتری -انتقال">
+                                مذاکره با مشتری -انتقال
+                            </OPTION>
+
+                            <OPTION value="3124@MARAJEKHAHAN@مراجع خواهان">
+                                مراجع خواهان
+                            </OPTION>
+
+                            <OPTION value="405@MORAKHASI@مرخصی">
+                                مرخصی
+                            </OPTION>
+
+                            <OPTION value="1201@MORAKHASI96@مرخصی 96">
+                                مرخصی 96
+                            </OPTION>
+
+                            <OPTION value="2397@BMORKHSI@مرخصی بیمه ایران">
+                                مرخصی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="66@SENDLETTER@مرسولات ارسالی">
+                                مرسولات ارسالی
+                            </OPTION>
+
+                            <OPTION value="65@POSTLETTER@مرسولات پستی">
+                                مرسولات پستی
+                            </OPTION>
+
+                            <OPTION value="2897@SECURITYDOCS@مستندات امنیت">
+                                مستندات امنیت
+                            </OPTION>
+
+                            <OPTION value="1422@MADAREKTTLV@مشاهده آخرین نسخه مستندات">
+                                مشاهده آخرین نسخه مستندات
+                            </OPTION>
+
+                            <OPTION value="3078@CREDITV@مشاهده اسناد اعتباری">
+                                مشاهده اسناد اعتباری
+                            </OPTION>
+
+                            <OPTION value="3136@ESTCHECKV@مشاهده بررسی استعلام">
+                                مشاهده بررسی استعلام
+                            </OPTION>
+
+                            <OPTION value="3415@FRAUDVIEW@مشاهده بررسی رویداد">
+                                مشاهده بررسی رویداد
+                            </OPTION>
+
+                            <OPTION value="1665@ACTIVITYVIEW@مشاهده فعالیت های روابط عمومی">
+                                مشاهده فعالیت های روابط عمومی
+                            </OPTION>
+
+                            <OPTION value="1583@MADAREKTTNOP@مشاهده مدارک و مستندات">
+                                مشاهده مدارک و مستندات
+                            </OPTION>
+
+                            <OPTION value="2915@SECURITYDOCV@مشاهده مستندات  امنیت">
+                                مشاهده مستندات  امنیت
+                            </OPTION>
+
+                            <OPTION value="1515@VPROJECTS@مشاهده پروژه">
+                                مشاهده پروژه
+                            </OPTION>
+
+                            <OPTION value="2520@BVPROJECTS@مشاهده پروژه بازاریابی">
+                                مشاهده پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="1763@TELMOSHTAREK@مشترک تلفن">
+                                مشترک تلفن
+                            </OPTION>
+
+                            <OPTION value="1715@TELMOSHTARE0@مشترک تلفن0">
+                                مشترک تلفن0
+                            </OPTION>
+
+                            <OPTION value="1714@MOSHTAREKIN@مشترکین">
+                                مشترکین
+                            </OPTION>
+
+                            <OPTION value="252@REFERENCES@مصدرها">
+                                مصدرها
+                            </OPTION>
+
+                            <OPTION value="792@APPROVALS@مصوبات">
+                                مصوبات
+                            </OPTION>
+
+                            <OPTION value="532@MOSAVABEH@مصوبه">
+                                مصوبه
+                            </OPTION>
+
+                            <OPTION value="184@MOSAVABEPEIG@مصوبه-پیگیری">
+                                مصوبه-پیگیری
+                            </OPTION>
+
+                            <OPTION value="1585@RPT@معدل">
+                                معدل
+                            </OPTION>
+
+                            <OPTION value="602@ISCCONFLCT@مغایرتها">
+                                مغایرتها
+                            </OPTION>
+
+                            <OPTION value="341@ISCFACCON@مغایرتها_تسهیلات">
+                                مغایرتها_تسهیلات
+                            </OPTION>
+
+                            <OPTION value="902@ISCFACCONB@مغایرتها_تسهیلات_">
+                                مغایرتها_تسهیلات_
+                            </OPTION>
+
+                            <OPTION value="3097@CBKREQUEST@ملت-درخواستهای شعب">
+                                ملت-درخواستهای شعب
+                            </OPTION>
+
+                            <OPTION value="3638@CUSTOMER@ملت-سمت و نوع ارتباط">
+                                ملت-سمت و نوع ارتباط
+                            </OPTION>
+
+                            <OPTION value="2372@MONASEBATERT@مناسبت های ارتباط با مشتری">
+                                مناسبت های ارتباط با مشتری
+                            </OPTION>
+
+                            <OPTION value="781@AREAS@مناطق">
+                                مناطق
+                            </OPTION>
+
+                            <OPTION value="445@REGIONS@مناطق و ادارات">
+                                مناطق و ادارات
+                            </OPTION>
+
+                            <OPTION value="3196@MANATEGHUSER@مناطق و کاربران مناطق">
+                                مناطق و کاربران مناطق
+                            </OPTION>
+
+                            <OPTION value="3122@MANATEGHEST@مناطق-استعلام">
+                                مناطق-استعلام
+                            </OPTION>
+
+                            <OPTION value="2371@MANAMEL@منطقه عامل">
+                                منطقه عامل
+                            </OPTION>
+
+                            <OPTION value="505@MEHMANSARA@مهمانسرا">
+                                مهمانسرا
+                            </OPTION>
+
+                            <OPTION value="185@PEIGIRIMAIN@موارد پیگیری">
+                                موارد پیگیری
+                            </OPTION>
+
+                            <OPTION value="527@REQSUBJECTS@موضوعات پیشنهاد">
+                                موضوعات پیشنهاد
+                            </OPTION>
+
+                            <OPTION value="483@MOTEFAREGHE@مکاتبات">
+                                مکاتبات
+                            </OPTION>
+
+                            <OPTION value="2352@TAHKAM@مکاتبات احکام">
+                                مکاتبات احکام
+                            </OPTION>
+
+                            <OPTION value="2406@BMOKAHKM@مکاتبات احکام بیمه ایران">
+                                مکاتبات احکام بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="1702@TCRSPNDNC@مکاتبات اداری">
+                                مکاتبات اداری
+                            </OPTION>
+
+                            <OPTION value="2400@BMOKARZESH@مکاتبات ارزشیابی بیمه ایران">
+                                مکاتبات ارزشیابی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2112@DOCSLETTS@مکاتبات اسناد">
+                                مکاتبات اسناد
+                            </OPTION>
+
+                            <OPTION value="3357@BMOKATEBAT@مکاتبات اصلی بیمه ایران">
+                                مکاتبات اصلی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2113@TSTUDYLETT@مکاتبات اطلاعات تحصیلی">
+                                مکاتبات اطلاعات تحصیلی
+                            </OPTION>
+
+                            <OPTION value="2358@TINDVINFO@مکاتبات اطلاعات شخصی">
+                                مکاتبات اطلاعات شخصی
+                            </OPTION>
+
+                            <OPTION value="3360@BMOKPRSINFO@مکاتبات اطلاعات هویتی بیمه ایران">
+                                مکاتبات اطلاعات هویتی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2362@TSACRI@مکاتبات ایثارگری">
+                                مکاتبات ایثارگری
+                            </OPTION>
+
+                            <OPTION value="3376@MOKATEBATB@مکاتبات بازرسی">
+                                مکاتبات بازرسی
+                            </OPTION>
+
+                            <OPTION value="2364@TSTOP@مکاتبات بازنشستگی">
+                                مکاتبات بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="2361@TRTURN@مکاتبات بازگشت به کار">
+                                مکاتبات بازگشت به کار
+                            </OPTION>
+
+                            <OPTION value="3361@BMOKMOK@مکاتبات بیمه ایران">
+                                مکاتبات بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2351@TADMR@مکاتبات تشویقات">
+                                مکاتبات تشویقات
+                            </OPTION>
+
+                            <OPTION value="2359@TPUNSH@مکاتبات تنبیهات">
+                                مکاتبات تنبیهات
+                            </OPTION>
+
+                            <OPTION value="2403@BMOKSAYER@مکاتبات سایر بیمه ایران">
+                                مکاتبات سایر بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2244@LHJFHJ@مکاتبات صادرات">
+                                مکاتبات صادرات
+                            </OPTION>
+
+                            <OPTION value="2357@TGAP@مکاتبات فواصل خدمتی">
+                                مکاتبات فواصل خدمتی
+                            </OPTION>
+
+                            <OPTION value="2355@TDEAD@مکاتبات فوت">
+                                مکاتبات فوت
+                            </OPTION>
+
+                            <OPTION value="2353@TCONCAT@مکاتبات قراردادها">
+                                مکاتبات قراردادها
+                            </OPTION>
+
+                            <OPTION value="2354@TCUTTING@مکاتبات قطع رابطه با بانک">
+                                مکاتبات قطع رابطه با بانک
+                            </OPTION>
+
+                            <OPTION value="3363@BMOKTAHSILI@مکاتبات مدارک آموزشی بیمه ایران">
+                                مکاتبات مدارک آموزشی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2356@TEMPLOYE@مکاتبات مدارک استخدام">
+                                مکاتبات مدارک استخدام
+                            </OPTION>
+
+                            <OPTION value="2363@TSOURCE@مکاتبات مراجع رسیدگی به شکایات">
+                                مکاتبات مراجع رسیدگی به شکایات
+                            </OPTION>
+
+                            <OPTION value="2401@BMOKMORKHSI@مکاتبات مرخصی بیمه ایران">
+                                مکاتبات مرخصی بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2360@TRESUM@مکاتبات پذیرش سوابق">
+                                مکاتبات پذیرش سوابق
+                            </OPTION>
+
+                            <OPTION value="3362@BMOKREP@مکاتبات گزارشات بیمه ایران">
+                                مکاتبات گزارشات بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="2110@TINFOLETT@مکاتبات- اطلاعات شخصی">
+                                مکاتبات- اطلاعات شخصی
+                            </OPTION>
+
+                            <OPTION value="1581@COMPANYNAME@نام شرکت">
+                                نام شرکت
+                            </OPTION>
+
+                            <OPTION value="2521@BCOMPANYNAME@نام شرکت بازاریابی">
+                                نام شرکت بازاریابی
+                            </OPTION>
+
+                            <OPTION value="1951@ARZIXLETTER@نامه ARZI">
+                                نامه ARZI
+                            </OPTION>
+
+                            <OPTION value="1890@CNTRXLETTER@نامه CNTR">
+                                نامه CNTR
+                            </OPTION>
+
+                            <OPTION value="1794@CRDTXLETTER@نامه CRDT">
+                                نامه CRDT
+                            </OPTION>
+
+                            <OPTION value="1961@ENSNXLETTER@نامه ENSN">
+                                نامه ENSN
+                            </OPTION>
+
+                            <OPTION value="1860@HOGHXLETTER@نامه HOGH">
+                                نامه HOGH
+                            </OPTION>
+
+                            <OPTION value="1931@INNTXLETTER@نامه INNT">
+                                نامه INNT
+                            </OPTION>
+
+                            <OPTION value="1779@ISMSXLETTER@نامه ISMS">
+                                نامه ISMS
+                            </OPTION>
+
+                            <OPTION value="1818@ITEJXLETTER@نامه ITEJ">
+                                نامه ITEJ
+                            </OPTION>
+
+                            <OPTION value="1850@PLSHXLETTER@نامه PLSH">
+                                نامه PLSH
+                            </OPTION>
+
+                            <OPTION value="1880@RISKXLETTER@نامه RISK">
+                                نامه RISK
+                            </OPTION>
+
+                            <OPTION value="1148@SAZNXLETTER@نامه SAZN">
+                                نامه SAZN
+                            </OPTION>
+
+                            <OPTION value="1941@SLCTXLETTER@نامه SLCT">
+                                نامه SLCT
+                            </OPTION>
+
+                            <OPTION value="1978@THENXLETTER@نامه THEN">
+                                نامه THEN
+                            </OPTION>
+
+                            <OPTION value="1976@THNWXLETTER@نامه THNW">
+                                نامه THNW
+                            </OPTION>
+
+                            <OPTION value="1984@THSWXLETTER@نامه THSW">
+                                نامه THSW
+                            </OPTION>
+
+                            <OPTION value="1870@THWCXLETTER@نامه THWC">
+                                نامه THWC
+                            </OPTION>
+
+                            <OPTION value="837@THNXLETTER@نامه thn">
+                                نامه thn
+                            </OPTION>
+
+                            <OPTION value="1948@ARZIXLTRLTDL@نامه ها مرتبط ARZI">
+                                نامه ها مرتبط ARZI
+                            </OPTION>
+
+                            <OPTION value="1887@CNTRXLTRLTDL@نامه ها مرتبط CNTR">
+                                نامه ها مرتبط CNTR
+                            </OPTION>
+
+                            <OPTION value="1791@CRDTXLTRLTDL@نامه ها مرتبط CRDT">
+                                نامه ها مرتبط CRDT
+                            </OPTION>
+
+                            <OPTION value="1958@ENSNXLTRLTDL@نامه ها مرتبط ENSN">
+                                نامه ها مرتبط ENSN
+                            </OPTION>
+
+                            <OPTION value="1857@HOGHXLTRLTDL@نامه ها مرتبط HOGH">
+                                نامه ها مرتبط HOGH
+                            </OPTION>
+
+                            <OPTION value="1928@INNTXLTRLTDL@نامه ها مرتبط INNT">
+                                نامه ها مرتبط INNT
+                            </OPTION>
+
+                            <OPTION value="1778@SISMXLTRLTDL@نامه ها مرتبط ISMS">
+                                نامه ها مرتبط ISMS
+                            </OPTION>
+
+                            <OPTION value="1815@ITEJXLTRLTDL@نامه ها مرتبط ITEJ">
+                                نامه ها مرتبط ITEJ
+                            </OPTION>
+
+                            <OPTION value="1847@PLSHXLTRLTDL@نامه ها مرتبط PLSH">
+                                نامه ها مرتبط PLSH
+                            </OPTION>
+
+                            <OPTION value="1877@RISKXLTRLTDL@نامه ها مرتبط RISK">
+                                نامه ها مرتبط RISK
+                            </OPTION>
+
+                            <OPTION value="1147@SAZNXLTRLTDL@نامه ها مرتبط SAZN">
+                                نامه ها مرتبط SAZN
+                            </OPTION>
+
+                            <OPTION value="1938@SLCTXLTRLTDL@نامه ها مرتبط SLCT">
+                                نامه ها مرتبط SLCT
+                            </OPTION>
+
+                            <OPTION value="1981@THENXLTRLTDL@نامه ها مرتبط THEN">
+                                نامه ها مرتبط THEN
+                            </OPTION>
+
+                            <OPTION value="1966@THNWXLTRLTDL@نامه ها مرتبط THNW">
+                                نامه ها مرتبط THNW
+                            </OPTION>
+
+                            <OPTION value="1867@THWCXLTRLTDL@نامه ها مرتبط THWC">
+                                نامه ها مرتبط THWC
+                            </OPTION>
+
+                            <OPTION value="836@THNXLETRLTDL@نامه ها مرتبط thn">
+                                نامه ها مرتبط thn
+                            </OPTION>
+
+                            <OPTION value="301@AZEXLETTER@نامه کانورت صادرات">
+                                نامه کانورت صادرات
+                            </OPTION>
+
+                            <OPTION value="367@BSIXLETTER@نامه کانورتBSI">
+                                نامه کانورتBSI
+                            </OPTION>
+
+                            <OPTION value="2538@STDXLETTER@نامه کانورتSTD">
+                                نامه کانورتSTD
+                            </OPTION>
+
+                            <OPTION value="2249@THSXLETTER@نامه کانورتTHS">
+                                نامه کانورتTHS
+                            </OPTION>
+
+                            <OPTION value="181@PEIGRESULT@نتیجه پیگیری">
+                                نتیجه پیگیری
+                            </OPTION>
+
+                            <OPTION value="2350@INSTULL@نصب نرم افزار">
+                                نصب نرم افزار
+                            </OPTION>
+
+                            <OPTION value="2410@ROLES@نقش ها">
+                                نقش ها
+                            </OPTION>
+
+                            <OPTION value="3516@MAPS@نقشه ها">
+                                نقشه ها
+                            </OPTION>
+
+                            <OPTION value="2407@HAQIQI@نماینده حقیقی">
+                                نماینده حقیقی
+                            </OPTION>
+
+                            <OPTION value="162@AGENT@نمایندگان">
+                                نمایندگان
+                            </OPTION>
+
+                            <OPTION value="3495@INDREP@نمایندگان حقیقی">
+                                نمایندگان حقیقی
+                            </OPTION>
+
+                            <OPTION value="3476@IRBIMEIMPORT@نمایندگان حقیقی- اسکن شده">
+                                نمایندگان حقیقی- اسکن شده
+                            </OPTION>
+
+                            <OPTION value="784@CURRENCY@نوع ارز">
+                                نوع ارز
+                            </OPTION>
+
+                            <OPTION value="2274@ATIEIIL@نوع بیماری آتیه سازان">
+                                نوع بیماری آتیه سازان
+                            </OPTION>
+
+                            <OPTION value="1444@DOCTYPEPRO@نوع سند پروژه">
+                                نوع سند پروژه
+                            </OPTION>
+
+                            <OPTION value="2516@BDOCTYPEPRO@نوع سند پروژه بازاریابی">
+                                نوع سند پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="861@USERSTYPE@نوع کاربران مصوبات">
+                                نوع کاربران مصوبات
+                            </OPTION>
+
+                            <OPTION value="1121@NIK@نیکزاد">
+                                نیکزاد
+                            </OPTION>
+
+                            <OPTION value="2370@GOFTDOC@هدایای قابل ارائه">
+                                هدایای قابل ارائه
+                            </OPTION>
+
+                            <OPTION value="2490@TRANSPORT@هزینه رفت و آمد">
+                                هزینه رفت و آمد
+                            </OPTION>
+
+                            <OPTION value="922@UNITS@واحدها">
+                                واحدها
+                            </OPTION>
+
+                            <OPTION value="1521@LESSONS@واحدهای درسی">
+                                واحدهای درسی
+                            </OPTION>
+
+                            <OPTION value="2130@WEBSERVICE@وب سرویس">
+                                وب سرویس
+                            </OPTION>
+
+                            <OPTION value="1687@NASBSTATE@وضعیت نصب شعب">
+                                وضعیت نصب شعب
+                            </OPTION>
+
+                            <OPTION value="484@NOROZ@وضعیت کشیک نوروزی و اسفند">
+                                وضعیت کشیک نوروزی و اسفند
+                            </OPTION>
+
+                            <OPTION value="1530@VDOCPRO@ویو اسناد پروژه">
+                                ویو اسناد پروژه
+                            </OPTION>
+
+                            <OPTION value="2555@BVDOCPRO@ویو اسناد پروژه بازاریابی">
+                                ویو اسناد پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="661@MOSAVABEVIEW@ویو مشاهده مصوبه">
+                                ویو مشاهده مصوبه
+                            </OPTION>
+
+                            <OPTION value="1542@MAPARASATID@پ اساتید">
+                                پ اساتید
+                            </OPTION>
+
+                            <OPTION value="1541@MAPARDAN@پ دانشجو">
+                                پ دانشجو
+                            </OPTION>
+
+                            <OPTION value="3015@PARAMETERS@پارامترهای آرشیو">
+                                پارامترهای آرشیو
+                            </OPTION>
+
+                            <OPTION value="722@SYSPARAM@پارامترهای سیستم">
+                                پارامترهای سیستم
+                            </OPTION>
+
+                            <OPTION value="1942@ARZIXLETANSR@پاسخ ها ARZI">
+                                پاسخ ها ARZI
+                            </OPTION>
+
+                            <OPTION value="1881@CNTRXLETANSR@پاسخ ها CNTR">
+                                پاسخ ها CNTR
+                            </OPTION>
+
+                            <OPTION value="1783@CRDTXLETANSR@پاسخ ها CRDT">
+                                پاسخ ها CRDT
+                            </OPTION>
+
+                            <OPTION value="1952@ENSNXLETANSR@پاسخ ها ENSN">
+                                پاسخ ها ENSN
+                            </OPTION>
+
+                            <OPTION value="1851@HOGHXLETANSR@پاسخ ها HOGH">
+                                پاسخ ها HOGH
+                            </OPTION>
+
+                            <OPTION value="1921@INNTXLETANSR@پاسخ ها INNT">
+                                پاسخ ها INNT
+                            </OPTION>
+
+                            <OPTION value="1770@ISMSXLETANSR@پاسخ ها ISMS">
+                                پاسخ ها ISMS
+                            </OPTION>
+
+                            <OPTION value="1809@ITEJXLETANSR@پاسخ ها ITEJ">
+                                پاسخ ها ITEJ
+                            </OPTION>
+
+                            <OPTION value="1841@PLSHXLETANSR@پاسخ ها PLSH">
+                                پاسخ ها PLSH
+                            </OPTION>
+
+                            <OPTION value="1871@RISKXLETANSR@پاسخ ها RISK">
+                                پاسخ ها RISK
+                            </OPTION>
+
+                            <OPTION value="1141@SAZNXLETANSR@پاسخ ها SAZN">
+                                پاسخ ها SAZN
+                            </OPTION>
+
+                            <OPTION value="1932@SLCTXLETANSR@پاسخ ها SLCT">
+                                پاسخ ها SLCT
+                            </OPTION>
+
+                            <OPTION value="1967@THENXLETANSR@پاسخ ها THEN">
+                                پاسخ ها THEN
+                            </OPTION>
+
+                            <OPTION value="1962@THNWXLETANSR@پاسخ ها THNW">
+                                پاسخ ها THNW
+                            </OPTION>
+
+                            <OPTION value="1983@THSWXLETANSR@پاسخ ها THSW">
+                                پاسخ ها THSW
+                            </OPTION>
+
+                            <OPTION value="1861@THWCXLETANSR@پاسخ ها THWC">
+                                پاسخ ها THWC
+                            </OPTION>
+
+                            <OPTION value="830@THNXLETANSR@پاسخ ها thn">
+                                پاسخ ها thn
+                            </OPTION>
+
+                            <OPTION value="164@ACCEPTORS@پذیرندگان">
+                                پذیرندگان
+                            </OPTION>
+
+                            <OPTION value="1181@ACCEPTORS2@پذیرندگان-2">
+                                پذیرندگان-2
+                            </OPTION>
+
+                            <OPTION value="1512@PERSONELI@پرسنلی">
+                                پرسنلی
+                            </OPTION>
+
+                            <OPTION value="1797@TINTRDCTDOC@پرونده احکام">
+                                پرونده احکام
+                            </OPTION>
+
+                            <OPTION value="1561@PROFARC@پرونده استاد">
+                                پرونده استاد
+                            </OPTION>
+
+                            <OPTION value="1781@TPRSINFODOC@پرونده اطلاعات شخصی">
+                                پرونده اطلاعات شخصی
+                            </OPTION>
+
+                            <OPTION value="1800@TSCRFCEDOC@پرونده ایثارگری">
+                                پرونده ایثارگری
+                            </OPTION>
+
+                            <OPTION value="1806@TRTRMNTDOC@پرونده بازنشستگی">
+                                پرونده بازنشستگی
+                            </OPTION>
+
+                            <OPTION value="1804@TRETURNDOC@پرونده بازگشت به کار">
+                                پرونده بازگشت به کار
+                            </OPTION>
+
+                            <OPTION value="545@TELLERFILE@پرونده تحویلدار">
+                                پرونده تحویلدار
+                            </OPTION>
+
+                            <OPTION value="1799@TADMRDOC@پرونده تشویقات">
+                                پرونده تشویقات
+                            </OPTION>
+
+                            <OPTION value="1798@TPNSHDOC@پرونده تنبیهات">
+                                پرونده تنبیهات
+                            </OPTION>
+
+                            <OPTION value="544@ACCUNTFILE@پرونده حساب">
+                                پرونده حساب
+                            </OPTION>
+
+                            <OPTION value="1516@STDARC@پرونده دانشجویی">
+                                پرونده دانشجویی
+                            </OPTION>
+
+                            <OPTION value="2271@ADENTISTRY@پرونده دندان پزشکی- آتیه">
+                                پرونده دندان پزشکی- آتیه
+                            </OPTION>
+
+                            <OPTION value="542@BRANCHFILE@پرونده شعبه">
+                                پرونده شعبه
+                            </OPTION>
+
+                            <OPTION value="1802@TLEAVEDOC@پرونده فواصل خدمتی">
+                                پرونده فواصل خدمتی
+                            </OPTION>
+
+                            <OPTION value="1807@TDEATHDOC@پرونده فوت">
+                                پرونده فوت
+                            </OPTION>
+
+                            <OPTION value="1766@CONTRACT@پرونده قراردادها">
+                                پرونده قراردادها
+                            </OPTION>
+
+                            <OPTION value="1803@TCUTDOC@پرونده قطع رابطه با بانک">
+                                پرونده قطع رابطه با بانک
+                            </OPTION>
+
+                            <OPTION value="1785@TEMPLOYEDOC@پرونده مدارک استخدام">
+                                پرونده مدارک استخدام
+                            </OPTION>
+
+                            <OPTION value="1795@TEDUDOC@پرونده مدارک تحصیلی">
+                                پرونده مدارک تحصیلی
+                            </OPTION>
+
+                            <OPTION value="1805@TCMPLNTSDOC@پرونده مراجع رسیدگی به شکایات">
+                                پرونده مراجع رسیدگی به شکایات
+                            </OPTION>
+
+                            <OPTION value="546@CUSTOMERFILE@پرونده مشتری">
+                                پرونده مشتری
+                            </OPTION>
+
+                            <OPTION value="789@CUSTOMRFILE@پرونده مشتریان">
+                                پرونده مشتریان
+                            </OPTION>
+
+                            <OPTION value="130@TEMPERSON@پرونده موقت">
+                                پرونده موقت
+                            </OPTION>
+
+                            <OPTION value="1801@TRESUMEDOC@پرونده پذیرش سوابق">
+                                پرونده پذیرش سوابق
+                            </OPTION>
+
+                            <OPTION value="3217@PF@پرونده پرسنلی">
+                                پرونده پرسنلی
+                            </OPTION>
+
+                            <OPTION value="2088@TPRSFOLDER@پرونده پرسنلی بانک تجارت">
+                                پرونده پرسنلی بانک تجارت
+                            </OPTION>
+
+                            <OPTION value="2210@SPRSFOLDER@پرونده پرسنلی صادرات">
+                                پرونده پرسنلی صادرات
+                            </OPTION>
+
+                            <OPTION value="1683@TPRSARCHIVEC@پرونده پرسنلی محرمانه بانک تجارت">
+                                پرونده پرسنلی محرمانه بانک تجارت
+                            </OPTION>
+
+                            <OPTION value="2518@BPROJECTS@پروژه بازاریابی">
+                                پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="1526@PROJECTS@پروژه ها">
+                                پروژه ها
+                            </OPTION>
+
+                            <OPTION value="534@OFFERUSERS@پیشنهاد دهندگان">
+                                پیشنهاد دهندگان
+                            </OPTION>
+
+                            <OPTION value="142@PISHNAHAD220@پیشنهاد220">
+                                پیشنهاد220
+                            </OPTION>
+
+                            <OPTION value="2735@MOSAVABECHAP@چاپ مصوبه">
+                                چاپ مصوبه
+                            </OPTION>
+
+                            <OPTION value="3@USERS@کاربران">
+                                کاربران
+                            </OPTION>
+
+                            <OPTION value="125@HUSER@کاربران حراست">
+                                کاربران حراست
+                            </OPTION>
+
+                            <OPTION value="1003@USEROMOMI@کاربران روابط عمومی">
+                                کاربران روابط عمومی
+                            </OPTION>
+
+                            <OPTION value="3198@EVENTUSERS@کاربران رویداد">
+                                کاربران رویداد
+                            </OPTION>
+
+                            <OPTION value="2327@USERSHOAB@کاربران شعب">
+                                کاربران شعب
+                            </OPTION>
+
+                            <OPTION value="528@MOSAVABEUSER@کاربران مصوبات">
+                                کاربران مصوبات
+                            </OPTION>
+
+                            <OPTION value="2365@USERINSTALL@کاربران نصب نرم افزار">
+                                کاربران نصب نرم افزار
+                            </OPTION>
+
+                            <OPTION value="1796@SAFEUSER@کاربران گردش کار امنیت">
+                                کاربران گردش کار امنیت
+                            </OPTION>
+
+                            <OPTION value="3116@GHARARDAD@کاربرگ قراردادها">
+                                کاربرگ قراردادها
+                            </OPTION>
+
+                            <OPTION value="3117@MOKATEBAT@کاربرگ مکاتبات">
+                                کاربرگ مکاتبات
+                            </OPTION>
+
+                            <OPTION value="1562@KARTABLE@کارتابل">
+                                کارتابل
+                            </OPTION>
+
+                            <OPTION value="2272@KARDEKS@کاردکس بیماری خاص">
+                                کاردکس بیماری خاص
+                            </OPTION>
+
+                            <OPTION value="183@PEIGIRIPERSN@کارشناس پیگیری">
+                                کارشناس پیگیری
+                            </OPTION>
+
+                            <OPTION value="2577@KARSHENAS@کارشناسان نصب">
+                                کارشناسان نصب
+                            </OPTION>
+
+                            <OPTION value="1529@LETTER@کارنامه">
+                                کارنامه
+                            </OPTION>
+
+                            <OPTION value="582@KAZIE@کازیه">
+                                کازیه
+                            </OPTION>
+
+                            <OPTION value="1043@PERSONAL27@کلاسه پرسنلی_27">
+                                کلاسه پرسنلی_27
+                            </OPTION>
+
+                            <OPTION value="1947@ARZIXLETPOST@کنترل دسترسی ARZI">
+                                کنترل دسترسی ARZI
+                            </OPTION>
+
+                            <OPTION value="1886@CNTRXLETPOST@کنترل دسترسی CNTR">
+                                کنترل دسترسی CNTR
+                            </OPTION>
+
+                            <OPTION value="1790@CRDTXLETPOST@کنترل دسترسی CRDT">
+                                کنترل دسترسی CRDT
+                            </OPTION>
+
+                            <OPTION value="1957@ENSNXLETPOST@کنترل دسترسی ENSN">
+                                کنترل دسترسی ENSN
+                            </OPTION>
+
+                            <OPTION value="1856@HOGHXLETPOST@کنترل دسترسی HOGH">
+                                کنترل دسترسی HOGH
+                            </OPTION>
+
+                            <OPTION value="1927@INNTXLETPOST@کنترل دسترسی INNT">
+                                کنترل دسترسی INNT
+                            </OPTION>
+
+                            <OPTION value="1775@ISMSXLETPOST@کنترل دسترسی ISMS">
+                                کنترل دسترسی ISMS
+                            </OPTION>
+
+                            <OPTION value="1814@ITEJXLETPOST@کنترل دسترسی ITEJ">
+                                کنترل دسترسی ITEJ
+                            </OPTION>
+
+                            <OPTION value="1846@PLSHXLETPOST@کنترل دسترسی PLSH">
+                                کنترل دسترسی PLSH
+                            </OPTION>
+
+                            <OPTION value="1876@RISKXLETPOST@کنترل دسترسی RISK">
+                                کنترل دسترسی RISK
+                            </OPTION>
+
+                            <OPTION value="1146@SAZNXLETPOST@کنترل دسترسی SAZN">
+                                کنترل دسترسی SAZN
+                            </OPTION>
+
+                            <OPTION value="1937@SLCTXLETPOST@کنترل دسترسی SLCT">
+                                کنترل دسترسی SLCT
+                            </OPTION>
+
+                            <OPTION value="1974@THENXLETPOST@کنترل دسترسی THEN">
+                                کنترل دسترسی THEN
+                            </OPTION>
+
+                            <OPTION value="1965@THNWXLETPOST@کنترل دسترسی THNW">
+                                کنترل دسترسی THNW
+                            </OPTION>
+
+                            <OPTION value="1866@THWCXLETPOST@کنترل دسترسی THWC">
+                                کنترل دسترسی THWC
+                            </OPTION>
+
+                            <OPTION value="839@THNXLETPOST@کنترل دسترسی thn">
+                                کنترل دسترسی thn
+                            </OPTION>
+
+                            <OPTION value="365@BSIXLETUSR@کنترل دسترسیBSI">
+                                کنترل دسترسیBSI
+                            </OPTION>
+
+                            <OPTION value="2539@STDXLETUSR@کنترل دسترسیSTD">
+                                کنترل دسترسیSTD
+                            </OPTION>
+
+                            <OPTION value="2250@THSXLETUSR@کنترل دسترسیTHS">
+                                کنترل دسترسیTHS
+                            </OPTION>
+
+                            <OPTION value="3660@DEPGROUP@گروه سازمانی">
+                                گروه سازمانی
+                            </OPTION>
+
+                            <OPTION value="1667@TDOCTYPE@گروه سندها">
+                                گروه سندها
+                            </OPTION>
+
+                            <OPTION value="1445@GROUPPRO@گروه پروژه">
+                                گروه پروژه
+                            </OPTION>
+
+                            <OPTION value="2517@BGROUPPRO@گروه پروژه بازاریابی">
+                                گروه پروژه بازاریابی
+                            </OPTION>
+
+                            <OPTION value="525@WORKGROUP@گروه کاری">
+                                گروه کاری
+                            </OPTION>
+
+                            <OPTION value="1588@COMPG@گروه کامپیوتر">
+                                گروه کامپیوتر
+                            </OPTION>
+
+                            <OPTION value="2576@PROJGRP@گروههای پروژه">
+                                گروههای پروژه
+                            </OPTION>
+
+                            <OPTION value="3375@INSPECREP@گزارش بازرسی">
+                                گزارش بازرسی
+                            </OPTION>
+
+                            <OPTION value="1602@TAHVILDARREP@گزارش تحویلدارها">
+                                گزارش تحویلدارها
+                            </OPTION>
+
+                            <OPTION value="281@PEIGREPJAME@گزارش جامع موارد پیگیری">
+                                گزارش جامع موارد پیگیری
+                            </OPTION>
+
+                            <OPTION value="1641@ZAMNBANDI@گزارش زمانبندی شعب">
+                                گزارش زمانبندی شعب
+                            </OPTION>
+
+                            <OPTION value="2677@CREDITHIS@گزارش سوابق اسناد اعتباری">
+                                گزارش سوابق اسناد اعتباری
+                            </OPTION>
+
+                            <OPTION value="1645@SHOABREP@گزارش شعب">
+                                گزارش شعب
+                            </OPTION>
+
+                            <OPTION value="3236@REPORT0@گزارش عملکرد0">
+                                گزارش عملکرد0
+                            </OPTION>
+
+                            <OPTION value="1643@NASBREP@گزارش نصب شعب">
+                                گزارش نصب شعب
+                            </OPTION>
+
+                            <OPTION value="1642@KARBARANSHOB@گزارش کاربران شعب">
+                                گزارش کاربران شعب
+                            </OPTION>
+
+                            <OPTION value="128@REPORT@گزارشات">
+                                گزارشات
+                            </OPTION>
+
+                            <OPTION value="3119@REPORTS@گزارشات ادارات">
+                                گزارشات ادارات
+                            </OPTION>
+
+                            <OPTION value="3358@BREPORT@گزارشات بیمه ایران">
+                                گزارشات بیمه ایران
+                            </OPTION>
+
+                            <OPTION value="261@PEIGIRIDELAY@گزارشات موارد پیگیری">
+                                گزارشات موارد پیگیری
+                            </OPTION>
+
+                            <OPTION value="182@PEIGIRIREPRT@گزارشات پیگیری">
+                                گزارشات پیگیری
+                            </OPTION>
+
+                        </SELECT>
+                        <input type="text" id="selectedTable" style="font-family:Tahoma; font-size:7pt; width:100%;" onchange=""/>
+                    </TD>
+                </TR>
+            </TABLE>
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;نام فرم:
+                    </TD>
+                    <TD align="center" width="90px;" unselectable="on" >
+                        <INPUT id="formNamePersian" onchange="return formNameChange();" type="text" class="clsText" style="width: 100%; font-family:Tahoma; font-size:7pt; height:18px;" />
+                    </TD>
+                </TR>
+            </TABLE>
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;نام انگليسي:
+                    </TD>
+                    <TD align="center" width="90px;" unselectable="on">
+                        <INPUT id="formNameEnglish" onchange="return formNameChange();" onkeypress="return KeyPressedOnlyLatinWithNumbers();" class="clsText" style="width: 100%; font-family:Tahoma; font-size:7pt; height:18px;" type="text" />
+                    </TD>
+                </TR>
+            </TABLE>
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;&nbsp;نوع فرم:
+                    </TD>
+                    <TD align="right" width="90px;" style="" unselectable="on">
+                        <select class="clsSelect" id="formTypeSelector" style="width:100%; font-family:Tahoma; font-size:7pt;" onchange="return formTypeChange('');">
+                            <option value="VIEW">نمايش</option>
+                            <option value="EDIT">ويرايش</option>
+                        </select>
+                    </TD>
+
+
+
+
+
+
+
+                </TR>
+            </TABLE>
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;
+                        <span  style="color:blue; text-decoration:underline; cursor:pointer;" onclick="showPermissionSelectionPopup();">
+                                دسترسي:
+                            </span>
+                    </TD>
+                    <TD align="center" width="90px;" unselectable="on">
+                        <INPUT id="formPermission" class="clsText" style="width: 100%; font-family:Tahoma; font-size:7pt; height:18px;" type="text" onchange="return formPermissionChanged();" onkeypress="return KeyPressedOnlyLatinWithNumbers();"/>
+                    </TD>
+                </TR>
+            </TABLE>
+
+            <!--TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on" style='table-layout:fixed;'>
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;
+                            دسترسي:
+                    </TD>
+                    <TD align="center" width="25px;" unselectable="on">
+                        <INPUT id="defaultForm" class="clsText" type="checkbox" onchange="JavaScript:alert();" />
+                    </TD>
+                </TR>
+            </TABLE-->
+        </FIELDSET>
+    </DIV>
+
+
+    <DIV id="sizePropertyPanel" class="clsSizePropertyPanel" unselectable="on">
+        <FIELDSET class="clsGroupBoxes" unselectable="on">
+            <LEGEND class="clsGroupBoxesTitleText" unselectable="on">
+                <IMG src="images/formdesigner/resizeImage.png" style="vertical-align: top;" unselectable="on" />
+                <B unselectable="on">اندازه فرم</B>
+            </LEGEND>
+            <TABLE border="0" cellpadding="0px" cellspacing="0" unselectable="on">
+                <TR>
+                    <TD align="right" width="55px;" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;اندازه صفحه:
+                    </TD>
+                    <TD align="right" width="90px;" unselectable="on">
+                        <SELECT id="pageSizeCombo" class="clsSelect" style="width:100%;font-family:Tahoma; font-size:7pt;" onchange="setFormSize(this.value);">
+                            <OPTION value="800X600" title="600*800">251*564</OPTION>
+                            <OPTION value="1024X768" title="768*1024" selected="selected">419*788</OPTION>
+                            <OPTION value="1280X768" title="768*1280">419*1044</OPTION>
+                            <OPTION value="1280X1024" title="1024*1280">675*1044</OPTION>
+                            <OPTION value="wXh">صفحه کنونی</OPTION>
+                            <OPTION value="mXn">دلخواه</OPTION>
+                        </SELECT>
+                    </TD>
+                </TR>
+                <TR id="customSizeTR" style="display:none;">
+                    <TD align="right" colspan="2" style="font-family:Tahoma; font-size:7pt;" unselectable="on">
+                        &nbsp;&nbsp;پهنا:
+                        <INPUT type="text" id="customWidthInput" class="clsText" style="width: 40px; font-family:Tahoma; font-size:7pt; height:18px;" onblur="setFormSize('mXn');"/> &nbsp;
+                        &nbsp;ارتفاع:
+                        <INPUT type="text" id="customHeightInput" class="clsText" style="width: 40px; font-family:Tahoma; font-size:7pt; height:18px;" onblur="setFormSize('mXn');"/>
+                    </TD>
+                </TR>
+            </TABLE>
+        </FIELDSET>
+    </DIV>
+
+
+
+    <DIV id="imagePropertyPanel" class="clsImagePropertyPanel" unselectable="on">
+        <FIELDSET class="clsGroupBoxes" unselectable="on">
+            <LEGEND class="clsGroupBoxesTitleText" unselectable="on">
+                <!--IMG src="images/formdesigner/image.png" style="vertical-align: top;" /-->
+                <INPUT type="CHECKBOX" id="enableBackgroundImage" onclick="setBackgroundImageState();"/>
+                <B unselectable="on" style="vertical-align:super">تصوير زمينه</B></LEGEND>
+            <TABLE border="0" cellpadding="5px" cellspacing="0" unselectable="on">
+                <TR>
+                    <TD align="center" width="180px;" unselectable="on">
+                        <IFRAME id="formBackgroundFrame" visible="false" width="0" height="0" src="jsp/designform/backgroundimageframe.jsp"></IFRAME>
+                        <TABLE  border="0" align="right">
+                            <TR>
+                                <TD width="50px" align="right" valign="middle" style="font-size:7pt">
+                                    <SPAN id="formBackgroundImageLink" class="clsBackgroundImageSelectLinkDisable">انتخاب</SPAN>
+                                </TD>
+                                <TD width="100px" valign="middle" align="right">
+                                    <INPUT type="image" style="cursor:default" id="bgModeCenter"  src="images/formdesigner/backgroundcenterdisable.gif" title="مرکز فرم" onclick="return backgroundImageModeChange(BACKGROUND_IMAGE_CENTER);"/>
+                                    <INPUT type="image" style="cursor:default" id="bgModeStretch" src="images/formdesigner/backgroundstretchselecteddisable.gif" title="به اندازه ابعاد فرم" onclick="return backgroundImageModeChange(BACKGROUND_IMAGE_STRETCH);"/>
+                                    <INPUT type="image" style="cursor:default" id="bgModeTile" src="images/formdesigner/backgroundtiledisable.gif" title="تکرار در سطح فرم" onclick="return backgroundImageModeChange(BACKGROUND_IMAGE_TILE);"/>
+                                </TD>
+                            </TR>
+                        </TABLE>
+                    </TD>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </TR>
+            </TABLE>
+        </FIELDSET>
+    </DIV>
+    <DIV id="fieldsPropertyPanel" class="clsFieldsPropertyPanel" unselectable="on">
+        <FIELDSET class="clsGroupBoxes" unselectable="on" >
+            <LEGEND class="clsGroupBoxesTitleText" unselectable="on">
+                <IMG src="images/formdesigner/fields.gif" style="vertical-align: top;" unselectable="on" />
+                <B unselectable="on">فیلدهای آرشیو</B></LEGEND>
+            <BR />
+            <TABLE border="0" cellpadding="0" cellspacing="0" unselectable="on">
+                <TR>
+                    <TD align="center" width="77px;" unselectable="on">
+                        <DIV id="fieldListComponent" class="clsFieldList" unselectable="on">
+                        </DIV>
+                    </TD>
+                </TR>
+            </TABLE>
+            <BR />
+        </FIELDSET>
+    </DIV>
+</DIV>
+
+<SCRIPT language="javascript" src="js/formdesigner/Utility.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/EventArgument.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/Field.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/FieldList.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/DragAndDrop.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/EventDispatcher.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/ToolbarItem.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/ToolbarTextBoxItem.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/ToolbarPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/Toolbar.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/ControlStyle.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/FormComponent.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/DataBoundComponent.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/StaticComponent.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/TextboxControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/TextAreaControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/NumberboxControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/BooleanControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/DataBoundImageControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/ListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/StaticListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/visualizer/ReferenceTextBoxVisualizer.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/visualizer/ReferenceListBoxVisualizer.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/visualizer/HTMLEditorVisualizer.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/ReferenceListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/DynamicListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/FreeListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/DateControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/StaticImageControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/LabelControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/TimeControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/FreeDateControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/CompositeComponent.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/grid/GridColumn.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/grid/GridColumnHeader.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/components/grid/GridListControl.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/TaborderManager.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/TabOrder.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/Handle.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/PreviewPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/HandleManager.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/CanvasManager.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/FormHead.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/FormBody.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/FormDefinition.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/PropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/SpecialPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/GeneralPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/LabelPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/TimePropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/ShortStringPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/LongStringPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/IdlePropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/BooleanPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/StaticListPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/ReferenceListPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/FontPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/BorderPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/propertypanels/GridPropertyPanel.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/PropertyPanelManager.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/Action.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/ResizeAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/PositionAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/SpecialPropertyChangeAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/GeneralPropertyChangeAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/StyleAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/AddRemoveDataControlAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/actions/AddRemoveStaticControlAction.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/UndoManager.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/ReferenceFieldSelectionDialog.js"></SCRIPT>
+
+<SCRIPT language="javascript" src="js/formdesigner/MainController.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT language="javascript" type="text/javascript"><!--
+
+messageBox.showServerToClientProgressBar();
+
+var mainController = new MainController();
+
+function fillFieldList(fieldList)
+{
+    var fieldListArray = new Array();
+
+    if(fieldList == "EDIT")
+    {
+        mainController.initializeFormDesigner();
+        mainController.loadFormDefinition();
+    }
+    if(fieldList == null)
+    {
+        mainController.setFieldList(fieldListArray);
+        mainController.initializeFormDesigner();
+    }
+    if(fieldList instanceof Array)
+    {
+        fieldListArray = fieldList;
+        mainController.setFieldList(fieldListArray);
+        mainController.initializeFormDesigner();
+    }
+
+    messageBox.hide();
+    document.getElementById("logWindow").style.display = "none";
+    document.getElementById("logWindowBackground").style.display = "none";
+    //document.getElementById("logWindowBackground").style.visibility = "hidden";
+
+    try
+    {
+        if(window.parent.document.getElementById("verticalMenuHiddener").className == "clsHideVerticalMenu")
+            window.parent.document.getElementById("verticalMenuHiddener").click(window.document.getElementById("verticalMenuHiddener"));
+    }
+    catch(e)
+    {
+        try
+        {
+            if(window.parent.document.getElementById("mainFrameset") != null)
+                window.parent.document.getElementById("mainFrameset").cols = "*,0";
+            else
+                document.getElementById("minimizerImage").style.display = "none";
+        }
+        catch(e)
+        {
+            //alert(e);
+        }
+    }
+    setFormSize(document.getElementById("pageSizeCombo").value);
+}
+
+function setFormSize(size){
+    document.getElementById("customSizeTR").style.setAttribute("display","none");
+    var width = new Number("788");
+    var height = new Number("419");
+    if(size != undefined){
+        if(size == ResourceBundle_fa.formDesigner.FORM_SIZE_CUSTOM){
+            document.getElementById("customSizeTR").style.setAttribute("display","inline");
+            if(document.getElementById("customWidthInput").value != ""){
+                width = new Number(document.getElementById("customWidthInput").value);
+            }
+            if(document.getElementById("customHeightInput").value != ""){
+                height = new Number(document.getElementById("customHeightInput").value);
+            }
+        }
+        else if(size == ResourceBundle_fa.formDesigner.FORM_SIZE_FIT){
+            width = document.body.clientWidth - DOCUMENT_SIZE_WIDTH_PREFIX - 65;
+            height = document.body.clientHeight - DOCUMENT_SIZE_HEIGHT_PREFIX + 170;
+        }
+        else{
+            width = new Number(size.split("X")[0]) - DOCUMENT_SIZE_WIDTH_PREFIX - 65;
+            height = new Number(size.split("X")[1])- DOCUMENT_SIZE_HEIGHT_PREFIX;
+        }
+    }
+
+    document.getElementById("canvasPanel").style.width = width;
+    document.getElementById("canvas").style.width = width;
+
+    document.getElementById("canvasPanel").style.height = (height + 43);
+    document.getElementById("canvas").style.height = (height + 25);
+
+    document.getElementById("toolbarPanel").style.width = width + DOCUMENT_SIZE_WIDTH_PREFIX;
+    document.getElementById("propertyStrip").style.height = (height + 43);
+
+    mainController.setPageWidth(width);
+    mainController.setPageHeight(height);
+}
+
+function toggleSidebar()
+{
+    if(window.parent.document.getElementById("mainFrameset") != null)
+    {
+        var framesetCols = window.parent.document.getElementById("mainFrameset").cols;
+        var toggleImage = document.getElementById("minimizerImage");
+//                alert(framesetCols);
+        if(framesetCols.indexOf("%") != -1)
+        {
+            if(framesetCols.indexOf("%") < framesetCols.indexOf(","))
+            {
+                //  RTL Page
+                if(toggleImage.src == "images/formdesigner/last.gif")
+                {
+                    framesetCols = "*,200";
+                    toggleImage.src = "images/formdesigner/last.gif";
+                }
+                else
+                {
+                    framesetCols = "*,0";
+                    toggleImage.src = "images/formdesigner/first.gif";
+                }
+            }
+        }
+        else
+        {
+            if(framesetCols.indexOf("*") == 0)
+            {
+                if(framesetCols != "*,200")
+                {
+                    framesetCols = "*,200";
+                    toggleImage.src = "images/formdesigner/last.gif";
+                }
+                else
+                {
+                    framesetCols = "*,0";
+                    toggleImage.src = "images/formdesigner/first.gif";
+                }
+            }
+            else
+            {
+                if(framesetCols != "200,*")
+                {
+                    framesetCols = "200,*";
+                    toggleImage.src = "images/formdesigner/first.gif";
+                }
+                else
+                {
+                    framesetCols = "0,*";
+                    toggleImage.src = "images/formdesigner/last.gif";
+                }
+            }
+        }
+
+        window.parent.document.getElementById("mainFrameset").cols = framesetCols;
+    }
+}
+--></SCRIPT>
+<div id="minimizer" onclick="return toggleSidebar()" style="z-index:10000; right:0px; top:3px; position:absolute;">
+    <input type="image" src="images/formdesigner/first.gif" id="minimizerImage"/>
+</div>
+</BODY>
+
+</HTML>

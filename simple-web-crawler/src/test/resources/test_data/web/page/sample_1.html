@@ -1,0 +1,435 @@
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+    <title>2فعالیت های روابط عمومی استان - 1</title>
+    <link rel="stylesheet" type="text/css" href='/exarchive/css/blue_fa.css'/>
+
+
+    <meta http-equiv="x-ua-compatible" content="IE=5" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="Stylesheet" type="text/css" href="css/archiveStyleSheet_fa.css"/>
+    <script src="js/errorPagesOpener_fa.js" language="javascript"></script>
+    <script language="javascript" src="js/displaytag.js"></script>
+
+    <link href="css/ui.dynatree.css" rel="stylesheet" type="text/css"></link>
+    <link href="css/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+    <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" />
+    <link href="css/jquery-layout.css" rel="stylesheet" type="text/css" />
+
+    <script src="js/jquery/jquery-min.js" type="text/javascript"></script>
+    <script src="js/jquery/jquery-ui.custom-min.js" type="text/javascript"></script>
+    <script src="js/jquery/jquery.cookie.js" type="text/javascript"></script>
+    <script src="js/jquery/jquery.dynatree-min.js" type="text/javascript"></script>
+    <script src="js/jquery/jquery.contextMenu-custom.js" type="text/javascript"></script>
+    <script src="js/jquery/jquery.layout-latest-min.js"></script>
+
+    <script language="javascript" src="js/formdesigner/Ajax.js"></script>
+    <script type="text/javascript" src="js/formdesigner/ResourceBundle_fa.js"></script>
+    <script type="text/javascript" src="js/datamanipulation/DataManipulationResources_fa.js"></script>
+    <script language="javascript" src="js/formdesigner/Constants.js"></script>
+    <script type="text/javascript" src="js/DataManipulationConstants.js"></script>
+    <script src="ui/locale/arc-res-fa.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="js/search/SearchMain.js"></script>
+
+    <script src="js/filecontent/MainFileManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/ContentManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/ImageManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/AttachedFileManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/NoteManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/LetterManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/HistoryManager.js" type="text/javascript"></script>
+    <script src="js/filecontent/CustomViewManager.js" type="text/javascript"></script>
+
+
+    <script language="javascript" src="/gamtreeview/js/base.js"></script>
+    <script language="javascript" src="js/crossBrowserUtil.js"></script>
+    <script language="javascript" src="js/EmwatBridge.js"></script>
+    <script language="javascript" src="/gamtreeview/js/util/Base64.js"></script>
+    <script language="javascript" src="/gamtreeview/js/png-animator.js"></script>
+
+
+    <script type="text/javascript" src="js/mootools-release-1.11-min.js"></script>
+    <script type="text/javascript" src="js/LogViewer.js"></script>
+    <script type="text/javascript" src="js/datamanipulation/ArchiveDocument.js"></script>
+    <script type="text/javascript" src="js/Silverlight.js"></script>
+    <script type="text/javascript" src="js/upload/MultipleFileUploader.js"></script>
+    <script type="text/javascript" src="js/datamanipulation/DocumentController.js"></script>
+    <script type="text/javascript" src="js/datamanipulation/dal/DocumentDataProvider.js"></script>
+    <script type="text/javascript" src="js/datamanipulation/dal/DocumentImageProvider.js"></script>
+
+
+
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="/wr/ext/resources/css/ext-all-rtl.css"/>
+    <link rel="Stylesheet" type="text/css" href="/exarchive/css/archiveStyleSheet_fa.css"/>
+    <script type="text/javascript" src="/wr/ext/ext-base-debug-rtl.js"></script>
+    <script type="text/javascript" src="/wr/ext/ext-all-debug-rtl.js"></script>
+    <script type="text/javascript" src="/wr/ext/resources/locale/ext-lang-fa.js"></script>
+    <script type="text/javascript" src="/wr/ext/add-ons/js/gam-base.js"></script>
+    <script type="text/javascript" src="/wr/ext/add-ons/locale/gam-err-fa.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/wr/ext/add-ons/locale/gam-res-fa.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/wr/ext/add-ons/js/Grid.js"></script>
+    <script type="text/javascript" src="/exarchive/ui/locale/arc-res-fa.js"></script>
+    <script type="text/javascript" src="/exarchive/ui/locale/arc-err-fa.js"></script>
+
+
+
+    <script type="text/javascript" src="/exarchive/ui/commons/general.js"></script>
+    <script type="text/javascript">
+        setContextRoot('/exarchive');
+    </script>
+    <link rel="stylesheet" type="text/css" href="/wr/ext/add-ons/css/grid.css" />
+
+    <script type="text/javascript" src="js/datamanipulation/documentmanager/DocumentImageManager.js"></script>
+    <script type="text/javascript" src="js/Util.js"></script>
+    <script type="text/javascript" src="js/MessageBox.js"></script>
+    <script type="text/javascript" src="js/MessageViewer.js"></script>
+    <script type="text/javascript" src="js/StringUtil.js"></script>
+    <SCRIPT type="text/javascript" src="js/FavoriteFolderSelector.js"></SCRIPT>
+
+
+
+    <script type="text/javascript">
+
+        window.reloadCommandBar=function(){
+            var div = document.getElementById("menuToolBarDiv");
+            if(div != null && div.style.display != "none")
+                commandbarInstance.reload();
+            else
+                setTimeout(reloadCommandBar,100);
+
+        }
+
+        var EMWAT = 'emwat';
+        var WEBDAV = 'webdav';
+        var IMAGE_FORMAT_TIF_ID='1';
+        var IMAGE_FORMAT_JPG_ID='2';
+        var REFRESH_PAGE_TMP_ADD = null;
+        var TOKEN_GEN_ERROR = '-1';
+        var TOKEN_GEN_SAFE_STATE = '0';
+        var TOKEN_GEN_RESRC_LOCK_BY_OTHER = '1';
+        var TOKEN_GEN_DOC_CHECKOUT_BY_OTHER = '2';
+        var TOKEN_GEN_MUST_CHECKOUTED_FIRST = '3';
+
+        var TOKEN_GEN_ERROR_MSG = "خطا در ایجاد شناسه برای مدیریت محتوا در وب داو ، لطفاً به مدیر سیستم اطلاع دهید.";
+        var TOKEN_GEN_RESRC_LOCK_BY_OTHER_MSG = "فایل پیوست درخواستی توسط کاربر دیگری در حال ویرایش می باشد، شما قادر به ویرایش آن نمی باشید.";
+        var TOKEN_GEN_DOC_CHECKOUT_BY_OTHER_MSG = "سند حاوی فایل پیوست درخواستی توسط کاربر دیگری قفل گردیده است ، شما قادر به ویرایش آن نمی باشید.";
+        var TOKEN_GEN_MUST_CHECKOUTED_FIRST_MSG = "شما ابتدا بایستی سند حاوی فایل پیوست را قفل نمایید.";
+        var WEBDAV_COMPATIBLE_PRO_ERROR = "برنامه سازگار جهت ویرایش این فایل بر روی ماشین شما یافت نشد. لطفاً به مدیر سیستم اطلاع دهید.";
+
+        var DOCUMENT_COPY_NO_SELECT = "هيچ سندي براي كپي انتخاب نشده است.";
+        var DOCUMENT_COPY_COMPLETE = "كپي اسناد به پوشه(ها) با موفقيت انجام شد.";
+        var DOCUMENT_COPY_COMPLETE_DUPLICATE_ALL = "در حال حاضر اسناد در پوشه(ها) موجود هستند.";
+        var DOCUMENT_COPY_COMPLETE_DUPLICATE = "كپي اسناد با موفقيت انجام شد، برخي اسناد در پوشه يا پوشه هايي از پيش موجود بود.";
+
+        var AJAX_RESULT_EMWAT_MAX_FILE_ERROR = '600';
+        var DOCUMENT_DELETE_CONFIRM = "از حذف موارد انتخابي مطمئن هستيد؟";
+        var CONTENT_DOCUMENT_DELETE_CONFIRM = "سند /پرونده انتخاب شده به صورت کامل از سيستم حذف خواهد شد. آيا اطمينان داريد؟";
+        var TREE_LOAD_ERROR = "بروز خطا هنگام دریافت اطلاعات";
+        var CHECKED_OUT_INFO = 'این سند توسط کاربر arg0 در تاریخ arg1 قفل گردیده است.';
+        var DOC_LOCKED_BY_OTHER = 'در حال حاضر این سند بوسيله کاربر ديگری قفل شده و قابل ويرايش نمي باشد';
+        var DOC_LOCKED_ERROR = 'خطا در قفل کردن سند. شما در حال حاضر قادر به ویرایش این سند نمی باشید';
+        var FORM_DEF_ACCESS = 'خطا در ثبت فرم پیش فرض آرشیو';
+        var CHECKED_OUT_INFO_FREE = 'سند مورد نظر آزاد شده است.';
+        var CHECK_IN_OUT_ERROR = "در بررسی وضعیت قفل این سند خطا رخ داده است.";
+        var CHECK_IN_OUT_ACCESS = "در حال حاضر این سند توسط کاربر دیگری قفل است.";
+        var EDIT_FORM_DELETE = "فرم مربوط به نمای انتخاب شده در سیستم موجود نمی باشد. لطفاً اطلاعات نما را اصلاح نمایید.";
+        var EDIT_FORM_FAILD = "خطا در ایجاد فرم پیش فرض برای ویرایش اسناد آرشیو";
+        var contextRoot = "/exarchive";
+        var isEmwatEnabled = "false";
+
+        var refreshAfterSave = "1";
+
+        var hasEditAccess = 'false';
+        var hasPrintAccess = 'false';
+        var hasViewAccess = 'false';
+        var isSilverlightInstalled = null;
+        var HAS_IMG_TYPE = false;
+        var parentFileNameEn= "";
+        var parentDocumentID= "";
+
+        //do not change name of this variable
+        //used directly - indirectly and try to change of it make side very bad effects
+        var mainManager = null;
+
+        /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            Attention: Using JQuery and Mootools together, causes syntax conflicts, use "jQuery"
+                        instead of $ in order to prevent this conflict
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+
+
+        var tree = null;
+        var logger = null;
+        jQuery.noConflict();
+        jQuery(document).ready(function(){
+            mainManager = new ManageMainFile();
+
+            jQuery('body').layout({
+                applyDefaultStyles: false
+                ,maskIframesOnResize: true
+                ,north: {
+                    fxName:                "none"
+                    ,spacing_closed:        8
+                    ,togglerLength_closed:  "100%"
+                    ,resizable: false
+                    ,state: {
+                        padding:0
+                    }
+                }
+                ,east__onresize: function(){
+                    var frameElement = window.frames['TAB_ITEM_CONTENT_0'];
+                    window.setTimeout(function(){
+                        frameElement.scrollTo(frameElement.frameElement.scrollWidth,0);
+                    },300);
+                }
+            });
+            // --- Initialize sample trees
+            tree = mainManager.createTree();
+        });
+
+        function hideToolbar(){
+            if(mainManager != null)
+                mainManager.hideToolbar();
+        }
+
+        function contentFrameFocused(){
+            commandbarInstance.onMouseDownOnWholePage();
+            commandbarInstance.afterContentFocused();
+        }
+
+        function commandbarInstanceLoaded(commandbarObject){
+            commandbarInstance.contentFrame().parentNode.style.display = "none";
+
+            // because of buggy settings, temporarily disable setting
+//                document.getElementById(commandbarInstance.menubarRowId).oncontextmenu = "";
+//                document.getElementById(commandbarInstance.toolbarRowId).oncontextmenu = "";
+            try{
+                commandbarObject.extraAjaxParams={
+                    content:"filecontent"
+                    ,mainTableID: "1663"
+                    ,mode: "view"
+                    ,mainDocumentID: "1"
+                    ,documentID: "1"
+                    ,tableName: "2ACTIVITY"
+                    ,customViewID: "0"
+                };
+                hasEditAccess = 'true';
+                hasPrintAccess = 'true';
+                hasViewAccess = "true";
+
+                document.getElementById("TAB_ITEM_CONTENT_0").contentWindow.execScript(
+                    "document.onkeydown=function (){"+
+                    "window.parent."+commandbarInstance.container.id+".handleShortkeysFromContent(window.event);"+
+                    "}"
+                    ,"javascript");
+            }catch(e){alert(e.message)}
+        }
+
+        // edit contents
+        function edit(id, tableName, index, formWidth, formHeight) {
+            contentManager.editFile(id, tableName, index, formWidth, formHeight);
+        }
+
+        function makeFileDirty(){
+            mainManager.makeFileDirty();
+        }
+
+        function makeFileClean(){
+            mainManager.makeFileClean();
+        }
+
+        function refreshNotesList(){
+            noteManager.refreshList();
+        }
+
+    </script>
+
+
+    <script type="text/javascript">
+
+        var contentManager = null;
+        var imageManager = null;
+        var noteManager = null;
+        var fileManager = null;
+        var letterManager = null;
+        var customViewManager = null;
+
+        function init(){
+            contentManager = new ManageContents();
+            imageManager = new ManageImages();
+            noteManager = new ManageNotes();
+            fileManager = new ManageAttachedFiles();
+
+            letterManager = new ManageLetters();
+            customViewManager = new ManageCustomView();
+
+            // change window title
+            window.document.title = "2فعالیت های روابط عمومی استان-1";
+            window.parent.document.title = new String("\u0634\u0646\u0627\u0633\u0647 \u067E\u0631\u0648\u0646\u062F\u0647") +
+                " - " + "1";
+
+            var seqScnCfg = '[]';
+            var singleSeqScnTitle = '';
+            if(seqScnCfg != ''){
+                seqScnCfg = eval(seqScnCfg);
+                if(seqScnCfg != null && seqScnCfg.length == 1){
+                    singleSeqScnTitle = seqScnCfg[0].title;
+                }
+            }
+
+            var imageNoTypeCfg = '{"id":-1,"title":"","order":-1,"color":-1,"imageFormat":-1,"mostUsable":false,"barcode":"","permission":"","barcodeType":-1,"resolution":-1,"totalPages":-1,"maxSize":-1,"storeSinglePageTiff":false}';
+            var imageTypesCfg = '';
+            var divScanCfg = eval("(" + '[]' + ")");
+
+            if(imageNoTypeCfg != ''){
+                imageNoTypeCfg = eval ("(" + imageNoTypeCfg  + ")")
+            }else{
+                imageNoTypeCfg = null
+            }
+            if(imageTypesCfg != ''){
+                imageTypesCfg = eval ("(" + imageTypesCfg  + ")")
+                imageTypesCfg = imageTypesCfg.imageType;
+            }else{
+                imageTypesCfg = null
+            }
+
+            try{
+                emwatHandler=new UIComponent_EmwatHandler(emwatParams);
+                emwatHandler.checkIfInited(initPageContinued);
+                isSilverlightInstalled =  Silverlight.isInstalled("2.0");
+                ARCHIVE_ADDRESS = "http://" + window.location.host + contextRoot;
+                logger = new LogViewer(LL_ERROR);
+                imageManager.archiveDocument = new ArchiveDocument({
+                    id                    :   imageManager.mainDocumentID,
+                    tableName             :  imageManager.tableName,
+                    tableNameFa           :  document.getElementById("tableNameFa").value,
+                    tableID               :   imageManager.tableID,
+                    formID               :   imageManager.formID,
+                    toolbarState           :  'enable',
+                    mode                :  document.getElementById("mode").value,
+                    activityID              :   '0',
+                    hasNext               :   'false',
+                    hasPrevious            :   'false',
+                    documentViewerMode     :  document.getElementById("documentViewerMode").value,
+                    documentViewerModeData  :  document.getElementById("documentViewerModeData").value,
+                    sortBy                 :  document.getElementById("sortBy").value,
+                    rowNum               :  '',
+                    editable               : document.getElementById("mode").value=="view"?'false':'true',
+                    editFormId               :  document.getElementById("editFormId").value,
+                    viewFormId               : document.getElementById("viewFormId").value,
+                    emwatHandler            :  emwatHandler?emwatHandler:null,
+                    scanTool               :   'emwat',
+                    checkInState               :   '',
+                    checkOutState               :   '',
+                    hasCheckInCheckOut               :   '',
+                    fromFilePage                : true,
+
+                    fileStructure         :  '1',
+                    hasSeqScan                  :   'false'=='true' ? true:false,
+                    singleSeqScnTitle           :    singleSeqScnTitle,
+                    hasBarcode                  :   'false'=='true' ? true:false,
+                    imageNoTypeCfg              :   imageNoTypeCfg,
+                    imageTypesCfg               :   imageTypesCfg,
+                    hasDivScnSetting            : isTrue('false')?true:false,
+                    divScanCfg                  : divScanCfg,
+
+                    singleDocumentByID               :   ''
+                });
+            }catch(e){}
+        }
+
+    </script>
+</head>
+<body style="overflow:auto; margin:0px;" class="clsPageBody" onload="init();">
+<form name="dataManipulation" method="post" action="/exarchive/file.do" id="dataManipulation">
+    <input type="hidden" name="method" value="viewFile">
+    <input type="hidden" name="tableName" value="2ACTIVITY">
+    <input type="hidden" name="tableID" value="1663">
+    <input type="hidden" name="tableNameFa" value="2فعالیت های روابط عمومی استان">
+    <input type="hidden" name="documentID" value="1" id="documentID">
+    <input type="hidden" name="viewFormId" value="5165" id="viewFormId">
+    <input type="hidden" name="editFormId" value="4699" id="editFormId">
+    <input type="hidden" name="formID" value="5165" id="formID">
+    <input type="hidden" name="documentViewerModeData" value="" id="documentViewerModeData">
+    <input type="hidden" name="documentViewerMode" value="advsearch" id="documentViewerMode">
+    <input type="hidden" name="sortBy" value="AUF_ID asc">
+    <input type="hidden" name="mode" value="view">
+    <input type="hidden" name="customViewID" value="0" id="customViewID">
+    <input type="hidden" name="nodeId" value="" id="nodeId">
+    <input type="hidden" name="tableNameEn" value="2ACTIVITY"/>
+    <input type="hidden" name="docids" />
+    <input type="hidden" name="tableIds" />
+    <input type="hidden" name="tableRelatedNameFa" />
+    <input type="hidden" name="printAction" />
+    <input type="hidden" name="printParams" />
+
+    <input type="hidden" name="newDocRefFieldNameEn" value="">
+    <input type="hidden" name="newDocRefFieldStatus" value="false">
+    <input type="hidden" name="newDocRefFieldMultiSel" value="false">
+
+</form>
+
+<!-- layout panels //-->
+
+<!-- title and toolbar//-->
+<div id="menuToolBarDiv" class="ui-layout-north clsInputPage" style="height:80px;padding:0px;z-index:20;margin:0px;overflow:hidden;">
+    <div class="clsPageHeader" style="height:20px" id="titleContainer">
+        <span id="mainTitleSpan" style="display:inline-table">2فعالیت های روابط عمومی استان - 1</span>
+        <span id="dirtyFlag" style="visibility:hidden; color:red; font-weight:bold;">*</span>
+    </div>
+    <div style="height:80px;width:100%;"><xml id='commandbarDI_7644327690585746'><?xml version='1.0' encoding='utf-8' ?><command-bar cssHref="commandbar.do?method=commandbarStyle" target="targetFrame" resetServiceURL="commandbar.do?method=loadFactorySetting" saveConfigServiceURL="commandbar.do?method=saveCommandbarConfig" reloadServiceURL="commandbar.do?method=reloadCommandbar" ><menu-bar><menu-item ><label><![CDATA[پرونده]]></label><menu-item id="new_file" ><icon small="images/filetype.png" large="images/filetype_2424.png" /><label><![CDATA[پرونده جدید]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+N]]></shortkey><execution-script><![CDATA[doAction('newFile');]]></execution-script></menu-item><menu-item id="delete_file" ><icon small="/wr/img/btn_Delete_1616_fa.gif" large="images/delete_2424.png" /><label><![CDATA[حذف پرونده]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+D]]></shortkey><execution-script><![CDATA[doAction('deleteFile');]]></execution-script></menu-item><menu-item id="view_file" ><icon small="/wr/img/btn_Show_1616.gif" large="/wr/img/btn_Show_1616.gif" /><label><![CDATA[نمایش پرونده]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+W]]></shortkey><execution-script><![CDATA[doAction('viewFile');]]></execution-script></menu-item><menu-item id="email_file_link" ><icon small="images/sendemail.gif" large="images/sendemail_2424.png" /><label><![CDATA[ارسال نشانی پرونده با پست الکترونیک]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+E]]></shortkey><execution-script><![CDATA[doAction('emailLink');]]></execution-script></menu-item><menu-item id="copy_file_to_folder" ><icon small="images/copytofolder.gif" large="images/copytofolder.gif" /><label><![CDATA[کپی پرونده به پوشه]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+C]]></shortkey><execution-script><![CDATA[doAction('copyToFolder');]]></execution-script></menu-item><menu-item id="customize_toolbar" ><icon small="/secretariat/images/commandbar/settings_16x16.png" large="/secretariat/images/commandbar/settings_16x16.png" /><label><![CDATA[تنظیمات نوار ابزار]]></label><shortkey><![CDATA[Ctrl+Shift+Y]]></shortkey><execution-script><![CDATA[doAction('customizeToolbar');]]></execution-script></menu-item><menu-item id="image_paper" ><label><![CDATA[ورق زدن پرونده]]></label><execution-script><![CDATA[doAction('imagePaper');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[فایل ها]]></label><menu-item id="add_file" ><icon small="images/btn_Add_1616.gif" large="images/btn_Add_2424.png" /><label><![CDATA[درج فایل]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+F]]></shortkey><execution-script><![CDATA[doAction('addAttachedFile');]]></execution-script></menu-item><menu-item id="download_files" ><icon small="images/downloadfile.jpg" large="images/downloadfile_2424.png" /><label><![CDATA[دریافت فایل فشرده فایل های پیوست]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+D]]></shortkey><execution-script><![CDATA[doAction('viewAttachedFilesAsZip');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[تصویرها]]></label><menu-item id="new_image" ><icon small="images/open.gif" large="images/open_2424.png" /><label><![CDATA[انتخاب تصویر]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+M]]></shortkey><execution-script><![CDATA[doAction('newAttachedImage');]]></execution-script></menu-item><menu-item id="scan_image" ><icon small="images/scanner.png" large="images/scanner_2424.png" /><label><![CDATA[اسکن]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+R]]></shortkey><execution-script><![CDATA[doAction('scanImage');]]></execution-script></menu-item><menu-item id="scanDriver_image" ><icon small="images/img_ScanDriver_16x16.gif" large="images/img_ScanDriver_16x16.gif" /><label><![CDATA[اسکن پس از انتخاب اسکنر]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+R]]></shortkey><execution-script><![CDATA[doAction('scanDriverImage');]]></execution-script></menu-item><menu-item id="pdf_images" ><icon small="images/btn_PdfDoc_1616.gif" large="images/btn_PdfDoc_1616.gif" /><label><![CDATA[تولید فایل PDF از تصویرها]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+P]]></shortkey><execution-script><![CDATA[doAction('downloadAttachedImagesAsPDF');]]></execution-script></menu-item><menu-item id="zip_images" ><icon small="images/compressed.gif" large="images/compressed.gif" /><label><![CDATA[دریافت فایل فشرده تصویرها]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Alt+Shift+Q]]></shortkey><execution-script><![CDATA[doAction('downloadAttachedImagesAsZip');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[نما]]></label><menu-item id="-1" referenceable='false' ><label><![CDATA[<a href='' style='text-decoration:none;' title= '' onClick='doAction("executeFileCustomView","-1");return false;' class='clsFileViewListItem'>همه موارد</a>]]></label><menu-item id="-1_DEFAULT" referenceable='false' ><icon small="/exarchive/images/set_as_default.png" large="/exarchive/images/set_as_default.png" /><label><![CDATA[انتخاب نما به عنوان پیش فرض]]></label><execution-script><![CDATA[doAction('defaultFileCustomView',-1)]]></execution-script></menu-item></menu-item><menu-item id="add_custom_view" referenceable='false' ><icon small="images/new.gif" large="images/new.gif" /><label><![CDATA[جدید]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Alt+Shift+N]]></shortkey><execution-script><![CDATA[doAction('addCustomView');]]></execution-script></menu-item></menu-item></menu-bar><toolbar showLabel="yes" iconSize="small" ><toolbar-group><toolbar-item refId='new_file' /><toolbar-item refId='edit_file' /><toolbar-item refId='save_and_copy_file' /><toolbar-item refId='save_file' /><toolbar-item refId='save_imgSpecForm' /><toolbar-item refId='view_file' /><toolbar-item refId='checkout_file' /><toolbar-item refId='checkin_file' /><toolbar-item refId='checkout_info_file' /><toolbar-item refId='delete_file' /><toolbar-item refId='copy_file_to_folder' /><toolbar-item refId='email_file_link' /><toolbar-item refId='add_content_to_file' /><toolbar-item refId='new_add_content_to_file' /><toolbar-item refId='general_print' /><toolbar-item refId='customize_toolbar' /></toolbar-group><toolbar-group><toolbar-item refId='add_file' /><toolbar-item refId='download_files' /><toolbar-item refId='select_template' /></toolbar-group><toolbar-group><toolbar-item refId='new_image' /><toolbar-item refId='scan_image' /><toolbar-item refId='scanDriver_image' /><toolbar-item refId='seqScan_image' /><toolbar-item refId='delete_image' /><toolbar-item refId='save_sort_image' /><toolbar-item refId='sort_image' /><toolbar-item refId='pdf_images' /><toolbar-item refId='zip_images' /><toolbar-item refId='download_image' /><toolbar-item refId='print_image' /></toolbar-group><toolbar-group><toolbar-item refId='save_note' /></toolbar-group></toolbar><customization><label key='save'><![CDATA[ثبت]]></label><label key='remove'><![CDATA[حذف]]></label><label key='visible'><![CDATA[نمايان]]></label><image key='topSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Top_1212.gif]]></image><label key='saveAndClose'><![CDATA[ثبت و بازگشت]]></label><label key='toolbarVisibility'><![CDATA[نمايش نوار ابزار]]></label><label key='cancel'><![CDATA[انصراف]]></label><label key='labelStatus'><![CDATA[وضعيت برچسب]]></label><image key='bottomSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Bottom_1212.gif]]></image><label key='source'><![CDATA[موارد قابل استفاده در نوار ابزار]]></label><label key='iconSize'><![CDATA[اندازه آيكون]]></label><image key='upSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Up_1212.gif]]></image><label key='hidden'><![CDATA[پنهان]]></label><label key='target'><![CDATA[موارد موجود در نوار ابزار]]></label><label key='reset'><![CDATA[وضعيت اوليه]]></label><image key='downSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Down_1212.gif]]></image><label key='configuration'><![CDATA[تنظيمات نوار ابزار]]></label><label key='insert'><![CDATA[درج]]></label><label key='small'><![CDATA[كوچك]]></label><label key='separator'><![CDATA[جدا كننده]]></label><label key='large'><![CDATA[بزرگ]]></label></customization></command-bar></xml><script id='commandbarDI_7644327690585746_alt'  type="application/xml"><?xml version='1.0' encoding='utf-8' ?><command-bar cssHref="commandbar.do?method=commandbarStyle" target="targetFrame" resetServiceURL="commandbar.do?method=loadFactorySetting" saveConfigServiceURL="commandbar.do?method=saveCommandbarConfig" reloadServiceURL="commandbar.do?method=reloadCommandbar" ><menu-bar><menu-item ><label><![CDATA[پرونده]]></label><menu-item id="new_file" ><icon small="images/filetype.png" large="images/filetype_2424.png" /><label><![CDATA[پرونده جدید]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+N]]></shortkey><execution-script><![CDATA[doAction('newFile');]]></execution-script></menu-item><menu-item id="delete_file" ><icon small="/wr/img/btn_Delete_1616_fa.gif" large="images/delete_2424.png" /><label><![CDATA[حذف پرونده]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+D]]></shortkey><execution-script><![CDATA[doAction('deleteFile');]]></execution-script></menu-item><menu-item id="view_file" ><icon small="/wr/img/btn_Show_1616.gif" large="/wr/img/btn_Show_1616.gif" /><label><![CDATA[نمایش پرونده]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+W]]></shortkey><execution-script><![CDATA[doAction('viewFile');]]></execution-script></menu-item><menu-item id="email_file_link" ><icon small="images/sendemail.gif" large="images/sendemail_2424.png" /><label><![CDATA[ارسال نشانی پرونده با پست الکترونیک]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+E]]></shortkey><execution-script><![CDATA[doAction('emailLink');]]></execution-script></menu-item><menu-item id="copy_file_to_folder" ><icon small="images/copytofolder.gif" large="images/copytofolder.gif" /><label><![CDATA[کپی پرونده به پوشه]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+C]]></shortkey><execution-script><![CDATA[doAction('copyToFolder');]]></execution-script></menu-item><menu-item id="customize_toolbar" ><icon small="/secretariat/images/commandbar/settings_16x16.png" large="/secretariat/images/commandbar/settings_16x16.png" /><label><![CDATA[تنظیمات نوار ابزار]]></label><shortkey><![CDATA[Ctrl+Shift+Y]]></shortkey><execution-script><![CDATA[doAction('customizeToolbar');]]></execution-script></menu-item><menu-item id="image_paper" ><label><![CDATA[ورق زدن پرونده]]></label><execution-script><![CDATA[doAction('imagePaper');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[فایل ها]]></label><menu-item id="add_file" ><icon small="images/btn_Add_1616.gif" large="images/btn_Add_2424.png" /><label><![CDATA[درج فایل]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+F]]></shortkey><execution-script><![CDATA[doAction('addAttachedFile');]]></execution-script></menu-item><menu-item id="download_files" ><icon small="images/downloadfile.jpg" large="images/downloadfile_2424.png" /><label><![CDATA[دریافت فایل فشرده فایل های پیوست]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+D]]></shortkey><execution-script><![CDATA[doAction('viewAttachedFilesAsZip');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[تصویرها]]></label><menu-item id="new_image" ><icon small="images/open.gif" large="images/open_2424.png" /><label><![CDATA[انتخاب تصویر]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+M]]></shortkey><execution-script><![CDATA[doAction('newAttachedImage');]]></execution-script></menu-item><menu-item id="scan_image" ><icon small="images/scanner.png" large="images/scanner_2424.png" /><label><![CDATA[اسکن]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+R]]></shortkey><execution-script><![CDATA[doAction('scanImage');]]></execution-script></menu-item><menu-item id="scanDriver_image" ><icon small="images/img_ScanDriver_16x16.gif" large="images/img_ScanDriver_16x16.gif" /><label><![CDATA[اسکن پس از انتخاب اسکنر]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+R]]></shortkey><execution-script><![CDATA[doAction('scanDriverImage');]]></execution-script></menu-item><menu-item id="pdf_images" ><icon small="images/btn_PdfDoc_1616.gif" large="images/btn_PdfDoc_1616.gif" /><label><![CDATA[تولید فایل PDF از تصویرها]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Ctrl+Shift+P]]></shortkey><execution-script><![CDATA[doAction('downloadAttachedImagesAsPDF');]]></execution-script></menu-item><menu-item id="zip_images" ><icon small="images/compressed.gif" large="images/compressed.gif" /><label><![CDATA[دریافت فایل فشرده تصویرها]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Alt+Shift+Q]]></shortkey><execution-script><![CDATA[doAction('downloadAttachedImagesAsZip');]]></execution-script></menu-item></menu-item><menu-item ><label><![CDATA[نما]]></label><menu-item id="-1" referenceable='false' ><label><![CDATA[<a href='' style='text-decoration:none;' title= '' onClick='doAction("executeFileCustomView","-1");return false;' class='clsFileViewListItem'>همه موارد</a>]]></label><menu-item id="-1_DEFAULT" referenceable='false' ><icon small="/exarchive/images/set_as_default.png" large="/exarchive/images/set_as_default.png" /><label><![CDATA[انتخاب نما به عنوان پیش فرض]]></label><execution-script><![CDATA[doAction('defaultFileCustomView',-1)]]></execution-script></menu-item></menu-item><menu-item id="add_custom_view" referenceable='false' ><icon small="images/new.gif" large="images/new.gif" /><label><![CDATA[جدید]]></label><target><![CDATA[targetFrame]]></target><shortkey><![CDATA[Alt+Shift+N]]></shortkey><execution-script><![CDATA[doAction('addCustomView');]]></execution-script></menu-item></menu-item></menu-bar><toolbar showLabel="yes" iconSize="small" ><toolbar-group><toolbar-item refId='new_file' /><toolbar-item refId='edit_file' /><toolbar-item refId='save_and_copy_file' /><toolbar-item refId='save_file' /><toolbar-item refId='save_imgSpecForm' /><toolbar-item refId='view_file' /><toolbar-item refId='checkout_file' /><toolbar-item refId='checkin_file' /><toolbar-item refId='checkout_info_file' /><toolbar-item refId='delete_file' /><toolbar-item refId='copy_file_to_folder' /><toolbar-item refId='email_file_link' /><toolbar-item refId='add_content_to_file' /><toolbar-item refId='new_add_content_to_file' /><toolbar-item refId='general_print' /><toolbar-item refId='customize_toolbar' /></toolbar-group><toolbar-group><toolbar-item refId='add_file' /><toolbar-item refId='download_files' /><toolbar-item refId='select_template' /></toolbar-group><toolbar-group><toolbar-item refId='new_image' /><toolbar-item refId='scan_image' /><toolbar-item refId='scanDriver_image' /><toolbar-item refId='seqScan_image' /><toolbar-item refId='delete_image' /><toolbar-item refId='save_sort_image' /><toolbar-item refId='sort_image' /><toolbar-item refId='pdf_images' /><toolbar-item refId='zip_images' /><toolbar-item refId='download_image' /><toolbar-item refId='print_image' /></toolbar-group><toolbar-group><toolbar-item refId='save_note' /></toolbar-group></toolbar><customization><label key='save'><![CDATA[ثبت]]></label><label key='remove'><![CDATA[حذف]]></label><label key='visible'><![CDATA[نمايان]]></label><image key='topSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Top_1212.gif]]></image><label key='saveAndClose'><![CDATA[ثبت و بازگشت]]></label><label key='toolbarVisibility'><![CDATA[نمايش نوار ابزار]]></label><label key='cancel'><![CDATA[انصراف]]></label><label key='labelStatus'><![CDATA[وضعيت برچسب]]></label><image key='bottomSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Bottom_1212.gif]]></image><label key='source'><![CDATA[موارد قابل استفاده در نوار ابزار]]></label><label key='iconSize'><![CDATA[اندازه آيكون]]></label><image key='upSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Up_1212.gif]]></image><label key='hidden'><![CDATA[پنهان]]></label><label key='target'><![CDATA[موارد موجود در نوار ابزار]]></label><label key='reset'><![CDATA[وضعيت اوليه]]></label><image key='downSrc'><![CDATA[/gamtreeview/image/commandbar/btn_Down_1212.gif]]></image><label key='configuration'><![CDATA[تنظيمات نوار ابزار]]></label><label key='insert'><![CDATA[درج]]></label><label key='small'><![CDATA[كوچك]]></label><label key='separator'><![CDATA[جدا كننده]]></label><label key='large'><![CDATA[بزرگ]]></label></customization></command-bar></script><table style='height:100%;width=100%' cellpadding='0px' cellspacing='0px'><tr><td width='1%'></td><td><div style='height:100%' id='commandbarContainer_7644327690585746'></div></td><td width='1%'></td></tr></table><script language='javascript' src='/gamtreeview/js/base.js'></script><script language='javascript' src='/gamtreeview/js/dataIsland.js'></script><script language='javascript' src='/gamtreeview/js/commandbar.js'></script><script language='javascript'>function fn_7644327690585746(){window['commandbarInstance']=new UIComponent_MenuDataIslandGrid(document.body.clientWidth,'commandbarDI_7644327690585746','commandbarContainer_7644327690585746','commandbarInstance');commandbarInstance.mount();}if(document.body.onload==null){document.body.onload=function (){fn_7644327690585746();};}else{window['existingOnload']=document.body.onload;window.execScript(document.body.onload=function (){window.existingOnload();fn_7644327690585746();},'javascript')}</script></div>
+</div>
+
+<!-- tree //-->
+<div class="ui-layout-east" id="treeDiv">
+</div>
+
+<!-- content //-->
+<div class="ui-layout-center clsInputPage">
+    <iframe src="" id="TAB_ITEM_CONTENT_0" name="TAB_ITEM_CONTENT_0" marginheight="0px"
+            style="width:100%;height:100%;margin:0px;" onfocus="contentFrameFocused();"
+            onload="hideToolbar();" marginwidth="0px" scrolling="auto"></iframe>
+    <div id="dirtyFlag" name="dirtyFlag"></div>
+</div>
+
+<!-- end of layout panels //-->
+
+<!-- context menu items //-->
+<ul id="contents_document" class="contextMenuPlugin">
+    <li><a href="#edit"><img src="/wr/img/btn_Edit_1616.gif"/>ويرايش</a></li>
+    <li><a href="#view"><img src="/wr/img/btn_Show_1616.gif"/>نمايش</a></li>
+    <li><a href="#takeOutDoc"><img src="images/takeoutfromfiletype.png"/>خروج از پرونده</a></li>
+    <li style="border:none;"><a href="#deleteDoc"><img src="/wr/img/btn_Delete_1616_fa.gif"/>حذف</a></li>
+</ul>
+<ul id="contents_refDocument" class="contextMenuPlugin">
+    <li><a href="#edit"><img src="/wr/img/btn_Edit_1616.gif"/>ويرايش</a></li>
+    <li><a href="#view"><img src="/wr/img/btn_Show_1616.gif"/>نمايش</a></li>
+    <li style="border:none;"><a href="#deleteDoc"><img src="/wr/img/btn_Delete_1616_fa.gif"/>حذف</a></li>
+</ul>
+<ul id="contents_refLetter" class="contextMenuPlugin">
+    <li><a href="#takeOutDoc"><img src="images/takeoutfromfiletype.png"/>خروج از پرونده</a></li>
+</ul>
+
+<iframe src="" id="downloadFrame" name="downloadFrame" style="display:none;"></iframe>
+<input name="isGPTransferInstalled" type="text" id="isGPTransferInstalled" style="display:none" />
+
+<!-- Just for setting title, No Other Use //-->
+<div id="titleDiv" dir="rtl" style="direction: rtl">2فعالیت های روابط عمومی استان-1</div>
+<!-- ///-->
+<iframe src="" id="downloadFrameId" style="display:none"></iframe>
+</body>
+</html>

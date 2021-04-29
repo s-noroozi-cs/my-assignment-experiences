@@ -1,0 +1,758 @@
+<HTML>
+<HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META content="IE=5" http-equiv="x-ua-compatible">
+    <META content="text/html;charset=UTF-8" http-equiv="Content-Type">
+    <TITLE></TITLE>
+    <LINK type="text/css" rel="stylesheet" href="css/datamanipulator.css">
+    <SCRIPT src="js/mootools-1.2-core.js" language="javascript"></SCRIPT><SCRIPT src="js/mootools-1.2-more.js" language="javascript"></SCRIPT><SCRIPT src="js/FormGeneratorWF.js" language="javascript"></SCRIPT><SCRIPT type="text/javascript" src="js/formdesigner/Constants.js"></SCRIPT><script type="text/javascript" src="js/StringUtil.js"></script><SCRIPT type="text/javascript" src="js/datamanipulation/DataManipulationResources_fa.js"></SCRIPT><SCRIPT type="text/javascript" src="js/formdesigner/Utility.js"></SCRIPT><SCRIPT type="text/javascript" src="js/formdesigner/ResourceBundle_fa.js"></SCRIPT><SCRIPT type="text/javascript" src="js/formdesigner/Ajax.js"></SCRIPT><SCRIPT src="js/autocompleter/Autocompleter.js" language="javascript"></SCRIPT><SCRIPT src="js/autocompleter/Observer.js" language="javascript"></SCRIPT>
+    <link type="text/css" rel="stylesheet" href="js/autocompleter/Autocompleter.css">
+    <SCRIPT src="js/htmleditor/ckeditor.js" language="javascript"></SCRIPT><SCRIPT type="text/javascript" src="js/formdesigner/Inheritance.js"></SCRIPT><SCRIPT type="text/javascript" src="js/MessageBox.js"></SCRIPT><SCRIPT type="text/javascript" src="js/FavoriteFolderSelector.js"></SCRIPT><SCRIPT type="text/javascript" src="js/ImageViewer.js"></SCRIPT><SCRIPT type="text/javascript" src="js/ContextMenu.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/DataBoundComponent.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/CompositeComponent.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/TextboxDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/NumberboxDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/TextAreaDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/TimeDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/BooleanDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/DateDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/ReferenceTextboxDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/ImageDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/URLControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/ListItem.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/StaticListDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/grid/GridDataControl.js"></SCRIPT><SCRIPT type="text/javascript" src="js/data/visualizer/ReferenceListBoxDataVisualizer.js" language="javascript"></SCRIPT><SCRIPT src="js/date/DateHelper.js" type="text/javascript"></SCRIPT><SCRIPT src="js/data/FreeDateDataControl.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/RangeBasedDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/ThousandDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/CenturyDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/DecadeDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/YearDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/SeasonDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/MonthDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/MonthDecadeDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/MonthWeekDate.js" type="text/javascript"></SCRIPT><SCRIPT src="js/date/ExactDayDate.js" type="text/javascript"></SCRIPT><SCRIPT type="text/javascript" src="js/ConstValues.js"></SCRIPT><SCRIPT type="text/javascript" src="js/DataManipulator.js"></SCRIPT><SCRIPT type="text/javascript" src="js/DataManipulatorEventDispatcher.js"></SCRIPT><SCRIPT type="text/javascript" src="js/Validationkey.js"></SCRIPT><SCRIPT type="text/javascript" src="js/GridFieldUtil.js"></SCRIPT><SCRIPT type="text/javascript" src="js/Util.js"></SCRIPT><SCRIPT language="javascript" src="js/date/calendar/mainCalendar.js"></SCRIPT>
+    <LINK rel="stylesheet" type="text/css" href="css/mainCalendar.css">
+    <SCRIPT language="javascript" src="js/dateVC.js"></SCRIPT><script src="/gamtreeview/js/base.js" language="javascript"></script><script src="js/crossBrowserUtil.js" language="javascript"></script><script src="js/EmwatBridge.js" language="javascript"></script><script src="/gamtreeview/js/util/Base64.js" language="javascript"></script><script src="/gamtreeview/js/png-animator.js" language="javascript"></script>
+</HEAD>
+<SCRIPT language="javascript">
+    var baseTable={
+        fileStructure:false
+    }
+    var tableRefFieldsInfo= eval ("(" + '[{"isSrcTableFile":false,"fieldNameEn":"KARBARI"},{"isSrcTableFile":false,"fieldNameEn":"SEMAT"},{"isSrcTableFile":false,"fieldNameEn":"ASHKHAS"},{"isSrcTableFile":false,"fieldNameEn":"USER"}]'  + ")");
+    var newDocRefFieldInfo={
+        status:'@newDocRefFieldStatus',
+        fieldNameEn:'@newDocRefFieldNameEn',
+        multiSelect:'@newDocRefFieldMultiSel'
+    }
+    var newDocAct={
+        actType:eval("(" + '@newDocActType' + ")")
+        ,actParams:eval("(" + '@newDocParams' + ")")
+    }
+    var structureInfo = eval("(" + '{"sureName":"admin","saveremoveDoc":false,"status":"0","relatedable":false,"nameEn":"111","perId":1,"depId":1,"attchableImage":true,"checkInOut":false,"nameFa":"111","name":"gaas","attchableFile":false,"userName":"gaasadmin","fileStructure":false,"registerNote":false}' + ")");
+</SCRIPT>
+<BODY onkeydown="return bodyKeyPress();" onafterprint="return afterPrint();" onbeforeprint="return beforePrint();" onunload="return pageUnload();" onmouseup="bodyMouseUp();" style="overflow:auto;" topmargin="0" rightmargin="0" onscroll="return startMovingToolbar();" onresize="return makeCenterHorizontal();" onload="return initForm();" leftmargin="0" dir="rtl" bottommargin="0" class="clsPageBody">
+<A target="downloadHelperFrame" id="downloadHelperLink" style="display:none;"></A>
+<IFRAME src="" height="0" width="0" visible="false" style="display:none;" name="downloadHelperFrame" id="downloadHelperFrame"></IFRAME>
+<input style="display:none" id="isGPTransferInstalled" name="isGPTransferInstalled" type="hidden"><input name="fileBuffer" id="fileBuffer" type="hidden">
+<DIV style="height:24px; width:100%; background-color:#003466;" class="clsPageHeader"></DIV>
+<DIV style="background-image:url(images/toolbarbackground.png); width: 785px; height: 25px; font-size: 7pt; font-family: Tahoma; background-color: #e9eef8; text-align: center; visibility:hidden; border-right:solid 1px gray; border-left:solid 1px gray;" id="tabbar">
+    <TABLE style="width: 500px; height: 25px;" cellspacing="0" cellpadding="0" border="0">
+        <TR>
+            <TD unselectable="on" onclick="changeTab('DOCUMENT_HISTORY');" onmouseover="tabMouseOver('ID_TAB_HISTORY');" onmouseout="tabMouseOut('ID_TAB_HISTORY');" id="ID_TAB_HISTORY" class="clsTabNormal"></TD><TD unselectable="on" id="ID_TAB_RELATED_RECORD" class="clsTabDisable"></TD><TD unselectable="on" id="ID_TAB_REGISTER_NOTE" class="clsTabDisable"></TD><TD unselectable="on" id="ID_TAB_ATTACH_FILE" class="clsTabDisable"></TD><TD unselectable="on" onclick="changeTab('DOCUMENT_IMAGES');" onmouseover="tabMouseOver('ID_TAB_ATTACH_IMAGE');" onmouseout="tabMouseOut('ID_TAB_ATTACH_IMAGE');" id="ID_TAB_ATTACH_IMAGE" class="clsTabNormal"></TD><TD id="ID_TAB_CONTENT" style="border-right: #ccccff 1px solid;" class="clsTabSelected" background="images/toolbarbackgroundselected.gif">مشخصات سند</TD>
+        </TR>
+    </TABLE>
+</DIV>
+<DIV class="clsToolbarMainDiv" style="background-image=url('images/formdesigner/dynamictoolbarbackground.gif');" id="toolbar"></DIV>
+<DIV dir="rtl" style="margin-top:10px; color:Red; font-family:Tahoma; font-size:7pt; width:795px; position:relative; display:none;" id="errorContainer"></DIV>
+<DIV style="border:solid 1px gray; width: 785px; height: 419px; background-color: #e9eef8; position: relative; overflow: auto; z-index: 10; visibility:hidden;" id="mainPanel">
+    <DIV style="
+             position:absolute;
+                                                                                                        width:80;
+                                                                                                        height:25;
+                                                                                                        left:346;
+                                                                                                        top:265;
+
+            " class="clsTextboxControl" title="ساعت" id="SAAT">
+        <DIV style="border-width:1px;border-color:#aaaaaa;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="SAAT_DIV">
+            <INPUT readonly="true" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;" tabindex="4" value="" class="clsTimeControlTextbox" id="ID_TIME_SAAT" type="text">
+        </DIV>
+    </DIV>
+    <DIV style="
+             position:absolute;
+                                                                                                        width:220;
+                                                                                                        height:25;
+                                                                                                        left:38;
+                                                                                                        top:126;
+
+            " class="clsTextboxControl" title="111e" id="EEEE">
+        <DIV style="border-width:1px;border-color:#aaaaaa;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="EEEE_DIV">
+            <INPUT readonly="true" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;" tabindex="1" value="عباسی" class="clsTextboxControlTextbox" id="ID_TEXT_EEEE" type="text">
+        </DIV>
+    </DIV>
+    <DIV style="
+            position:absolute;
+                                                                    width:220;
+                                                                    height:25;
+                                                                    left:206;
+                                                                    top:590;
+       " class="clsNumberboxControl" title="عددی" id="ADADI">
+        <DIV style="border-width:1px;border-color:#aaaaaa;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="ADADI_DIV">
+            <INPUT readonly="true" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:ffffff;text-decoration:none;text-align:left;" tabindex="8" class="clsNumberboxControlNumberbox" value="" id="ID_NUMR_ADADI" type="text">
+        </DIV>
+    </DIV>
+    <DIV style="
+            position:absolute;
+                                                                    width:163;
+                                                                    height:25;
+                                                                    left:196;
+                                                                    top:31;
+       " class="clsNumberboxControl" title="عدد" id="ERROR">
+        <DIV style="border-width:1px;border-color:80ff00;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="ERROR_DIV">
+            <INPUT readonly="true" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:000000;background-color:ffffff;text-decoration:none;text-align:left;" tabindex="13" class="clsNumberboxControlNumberbox" value="" id="ID_NUMR_ERROR" type="text">
+        </DIV>
+    </DIV>
+    <DIV style="
+     position:absolute;
+     width:220;
+     height:52;
+     left:206;
+     top:635;
+          " class="clsTextAreaControl" title="متن" id="TEXT">
+        <DIV style="border-width:1px;border-color:#aaaaaa;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="TEXT_DIV">
+<TEXTAREA readonly="true" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;
+         height:52;
+         width:100%;
+        " tabindex="10" class="clsTextAreaControlTextArea" id="ID_TXAR_TEXT"></TEXTAREA>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                    position:absolute;
+            width:100;
+            height:100;
+            left:51;
+            top:166;
+                                " class="clsDataBoundImageControl" title="pic" id="PIC">
+        <DIV style="border-width:1px;border-color:#aaaaaa;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;" class="clsControlContainerDIV" id="PIC_DIV">
+            <INPUT style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:000000;background-color:ffffff;text-decoration:none;text-align:right; width:100%; height:100%;
+        " tabindex="2" class="clsDataBoundImageControlImage
+                                        " src="datamanipulation.do?method=loadImage&imageID=AUF_PIC&documentID=16&tableName=111" ondblclick="return displayImage('AUF_PIC','');
+                                                " oncontextmenu="return displayImageContextMenu('PIC');
+                                        " id="ID_IMAG_PIC" type="image">
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;
+             position:absolute;z-index:100;width:150; height:100; left:276; top:155;
+            " onscroll="return dataControlsEventHandler('ID_SLST_LIST','scroll');" class="clsStaticListControl" title="فهرست" id="ID_SLST_LIST">
+        <DIV class="clsStaticListConrolDIV" id="ID_SLST_LIST_DIV"></DIV>
+    </DIV>
+    <DIV style="
+                                                                            position:absolute;
+                                                                            z-index:300;
+                                                                            width:250px;
+                                                                            height:45px;
+                                                                            left:176px;
+                                                                            top:300px;
+                                                                        " class="clsTextboxControl" title="semat" id="SEMAT">
+        <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;; direction:rtl; padding-bottom:0px;" class="clsControlContainerDIV" id="SEMAT_DIV">
+            <INPUT readonly="true
+                                                                        " tabindex="5" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;;left: 0px; top: 2px; width:150px; float:right;margin-top:2px;z-index: 4;
+                                                                        " class="clsReferenceListControlTextBox
+                                                                        " id="ID_RLST_SEMAT" type="text
+                                                                        ">
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/plus1616_disabled.png" Alt="درج" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/search_disabled.gif" alt="جستجو" hidefocus="on" type="image">
+            </DIV>
+            <DIV onclick="return dataControlsEventHandler('ID_RLST_SEMAT','showdetailclick');
+                                                                            " onmouseout="this.style.backgroundImage='';
+                                                                            " onmouseover="this.style.backgroundImage='url(images/toolbarbackgroundselected.gif)';
+                                                                            " style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" alt="نمایش" src="/wr/img/btn_Show_1616.gif" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                        " align="center">
+                <INPUT class="clsReferenceListControlButton" src="images/delete_disabled.gif" alt="حذف" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="
+                                                                            padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:100%; height:20px;
+                                                                    " title="semat" id="ID_RLST_SEMAT_INDEX"></DIV>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                                                            position:absolute;
+                                                                            z-index:300;
+                                                                            width:250px;
+                                                                            height:45px;
+                                                                            left:176px;
+                                                                            top:525px;
+                                                                        " class="clsTextboxControl" title="اشخاص" id="ASHKHAS">
+        <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;; direction:rtl; padding-bottom:0px;" class="clsControlContainerDIV" id="ASHKHAS_DIV">
+            <INPUT readonly="true
+                                                                        " tabindex="7" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;;left: 0px; top: 2px; width:150px; float:right;margin-top:2px;z-index: 4;
+                                                                        " class="clsReferenceListControlTextBox
+                                                                        " id="ID_RLST_ASHKHAS" type="text
+                                                                        ">
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/plus1616_disabled.png" Alt="درج" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/search_disabled.gif" alt="جستجو" hidefocus="on" type="image">
+            </DIV>
+            <DIV onclick="return dataControlsEventHandler('ID_RLST_ASHKHAS','showdetailclick');
+                                                                            " onmouseout="this.style.backgroundImage='';
+                                                                            " onmouseover="this.style.backgroundImage='url(images/toolbarbackgroundselected.gif)';
+                                                                            " style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" alt="نمایش" src="/wr/img/btn_Show_1616.gif" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                        " align="center">
+                <INPUT class="clsReferenceListControlButton" src="images/delete_disabled.gif" alt="حذف" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="
+                                                                            padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:100%; height:20px;
+                                                                    " title="اشخاص" id="ID_RLST_ASHKHAS_INDEX"></DIV>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                                                            position:absolute;
+                                                                            z-index:300;
+                                                                            width:250px;
+                                                                            height:0px;
+                                                                            left:176px;
+                                                                            top:625px;
+                                                                        " class="clsTextboxControl" title="ارجاعی درختی" id="TREE">
+        <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;; direction:rtl; padding-bottom:0px;" class="clsControlContainerDIV" id="TREE_DIV">
+            <INPUT readonly="true
+                                                                        " tabindex="9" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;;left: 0px; top: 2px; width:150px; float:right;margin-top:2px;z-index: 4;
+                                                                        " class="clsReferenceListControlTextBox
+                                                                        " id="ID_RLST_TREE" type="text
+                                                                        ">
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/plus1616_disabled.png" Alt="درج" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/search_disabled.gif" alt="جستجو" hidefocus="on" type="image">
+            </DIV>
+            <DIV onclick="return dataControlsEventHandler('ID_RLST_TREE','showdetailclick');
+                                                                            " onmouseout="this.style.backgroundImage='';
+                                                                            " onmouseover="this.style.backgroundImage='url(images/toolbarbackgroundselected.gif)';
+                                                                            " style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" alt="نمایش" src="/wr/img/btn_Show_1616.gif" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                        " align="center">
+                <INPUT class="clsReferenceListControlButton" src="images/delete_disabled.gif" alt="حذف" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="
+                                                                            padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:100%; height:20px;
+                                                                    " title="ارجاعی درختی" id="ID_RLST_TREE_INDEX"></DIV>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                                                            position:absolute;
+                                                                            z-index:300;
+                                                                            width:250px;
+                                                                            height:45px;
+                                                                            left:176px;
+                                                                            top:705px;
+                                                                        " class="clsTextboxControl" title="کاربر" id="USER">
+        <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;; direction:rtl; padding-bottom:0px;" class="clsControlContainerDIV" id="USER_DIV">
+            <INPUT readonly="true
+                                                                        " tabindex="11" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;;left: 0px; top: 2px; width:150px; float:right;margin-top:2px;z-index: 4;
+                                                                        " class="clsReferenceListControlTextBox
+                                                                        " id="ID_RLST_USER" type="text
+                                                                        ">
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/plus1616_disabled.png" Alt="درج" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/search_disabled.gif" alt="جستجو" hidefocus="on" type="image">
+            </DIV>
+            <DIV onclick="return dataControlsEventHandler('ID_RLST_USER','showdetailclick');
+                                                                            " onmouseout="this.style.backgroundImage='';
+                                                                            " onmouseover="this.style.backgroundImage='url(images/toolbarbackgroundselected.gif)';
+                                                                            " style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" alt="نمایش" src="/wr/img/btn_Show_1616.gif" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                        " align="center">
+                <INPUT class="clsReferenceListControlButton" src="images/delete_disabled.gif" alt="حذف" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="
+                                                                            padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:100%; height:20px;
+                                                                    " title="کاربر" id="ID_RLST_USER_INDEX"></DIV>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                                                            position:absolute;
+                                                                            z-index:300;
+                                                                            width:250px;
+                                                                            height:45px;
+                                                                            left:176px;
+                                                                            top:770px;
+                                                                        " class="clsTextboxControl" title="کاربری" id="KARBARI">
+        <DIV style="border-width:2px;border-color:#dddddd;border-style:inset;border-top-style:inset;border-bottom-style:inset;border-left-style:inset;border-right-style:inset;; direction:rtl; padding-bottom:0px;" class="clsControlContainerDIV" id="KARBARI_DIV">
+            <INPUT readonly="true
+                                                                        " tabindex="12" style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:ffffff;text-decoration:none;text-align:right;;left: 0px; top: 2px; width:150px; float:right;margin-top:2px;z-index: 4;
+                                                                        " class="clsReferenceListControlTextBox
+                                                                        " id="ID_RLST_KARBARI" type="text
+                                                                        ">
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/plus1616_disabled.png" Alt="درج" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" src="images/search_disabled.gif" alt="جستجو" hidefocus="on" type="image">
+            </DIV>
+            <DIV onclick="return dataControlsEventHandler('ID_RLST_KARBARI','showdetailclick');
+                                                                            " onmouseout="this.style.backgroundImage='';
+                                                                            " onmouseover="this.style.backgroundImage='url(images/toolbarbackgroundselected.gif)';
+                                                                            " style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                    " align="center
+                                                                    ">
+                <INPUT class="clsReferenceListControlButton" alt="نمایش" src="/wr/img/btn_Show_1616.gif" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:20px; height:20px;
+                                                                        " align="center">
+                <INPUT class="clsReferenceListControlButton" src="images/delete_disabled.gif" alt="حذف" hidefocus="on" type="image">
+            </DIV>
+            <DIV style="
+                                                                            padding-top:4px; padding-left:2px; padding-right:2px; float: right; width:100%; height:20px;
+                                                                    " title="کاربری" id="ID_RLST_KARBARI_INDEX"></DIV>
+        </DIV>
+    </DIV>
+    <DIV style="
+                                                        position:absolute;
+                                                        z-index:200;
+                                                        width:250px;
+                                                        height:150px;
+                                                        left:176px;
+                                                        top:365px;
+                                                    " onkeyup="return dataControlsEventHandler('GRID','manageRow');
+                                                    " class="clsTextboxControl" tabindex="6" title="grid" id="GRID"></DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:157;top:174;z-index:-1;
+            " id="ID_STATIC_LABEL_2" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_2_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_2_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">pic</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:160;z-index:-1;
+            " id="ID_STATIC_LABEL_3" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_3_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_3_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">فهرست</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:270;z-index:-1;
+            " id="ID_STATIC_LABEL_4" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_4_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_4_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">ساعت</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:305;z-index:-1;
+            " id="ID_STATIC_LABEL_5" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_5_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_5_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">semat</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:370;z-index:-1;
+            " id="ID_STATIC_LABEL_6" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_6_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_6_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">grid</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:530;z-index:-1;
+            " id="ID_STATIC_LABEL_7" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_7_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_7_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">اشخاص</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:595;z-index:-1;
+            " id="ID_STATIC_LABEL_8" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_8_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_8_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">عددی</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:630;z-index:-1;
+            " id="ID_STATIC_LABEL_9" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_9_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_9_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">ارجاعی&nbsp;درختی</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:640;z-index:-1;
+            " id="ID_STATIC_LABEL_10" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_10_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_10_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">متن</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:710;z-index:-1;
+            " id="ID_STATIC_LABEL_11" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_11_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_11_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">کاربر&nbsp;*</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:#aaaaaa;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;position:absolute;width:229;height:24;left:446;top:775;z-index:-1;
+            " id="ID_STATIC_LABEL_12" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:LTR;color:#000000;background-color:transparent;text-decoration:none;text-align:left; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_12_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_12_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">کاربری</DIV>
+        </DIV>
+    </DIV>
+    <DIV style="border-width:2px;border-color:80ff00;border-style:solid;border-top-style:solid;border-bottom-style:solid;border-left-style:solid;border-right-style:solid;position:absolute;width:356;height:49;left:101;top:74;z-index:-1;
+            " id="ID_STATIC_LABEL_14" title="" class="clsLabelControl">
+        <DIV style="font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:000000;background-color:transparent;text-decoration:none;text-align:right; overflow:hidden; text-overflow : ellipsis;" id="ID_STATIC_LABEL_14_DIV" class="clsControlContainerDIV">
+            <DIV id="ID_STATIC_LABEL_14_CONTENT" dir="rtl" style="overflow:hidden; text-overflow : ellipsis;">عدد</DIV>
+        </DIV>
+    </DIV>
+</DIV>
+<DIV id="statusBar" class="clsStatusBarDiv" style="background-image=url('images/formdesigner/dynamictoolbarbackground.gif');border:solid 1px gray;position: relative; overflow: hidden; z-index: 10;visibility: hidden;"></DIV>
+<DIV id="signList" class="clsSignListDiv" style="border:solid 1px gray;position: relative;visibility: hidden;"></DIV>
+<DIV id="pageFooter" dir="rtl" style="height:16px; width:100%; background-color:#003466;font-size:10pt;font-family:tahoma" class="clsPageFooter"></DIV>
+<SCRIPT language="javascript">
+
+    var dataManipulator = new DataManipulator("2450",
+        "111",
+        "111",
+        16,
+        "VIEW",
+        true,
+        false
+    );
+
+    window.onbeforeunload = function(){
+        var TAB_SPEC=1;
+        Util.onWindowUnload(TAB_SPEC,dataManipulator.tableLatinName,dataManipulator.documentID);
+    }
+
+
+    dataManipulator.setFormSize(788,419);
+    dataManipulator.setScriptsConfig('[{"fieldName":"0","eventName":"onload","scriptStr":"var error =document.getElementById(##ID_NUMR_ERROR##).value;\r\nvar label= document.getElementById(##ID_STATIC_LABEL_14##).innerHTML;\r\ndocument.getElementById(##ID_NUMR_ERROR##).value=-2;\r\n/*------------------------handle error code--------------------------------*/\r\nif (document.getElementById(##ID_NUMR_ERROR##).value==-2) { alert(error);\r\n\tdocument.getElementById(##ID_STATIC_LABEL_14##).innerHTML =##1234##; alert(label);\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n/* create Radio buttons group */\r\n/*\r\ndocument.getElementById(##ID_NUMR_ERJACODE##).style.display= ##none##;\r\ndocument.getElementById(##ID_TEXT_ERJATXT##).style.display= ##none##;\r\n\r\nvar bStr = ## <input type=radio name=m id=radio_11 value=1><span id=radio_text_11> ارجاع به معاونت اداری</span>## + ## <input type=radio name=m id=radio_12 value=2><span id=radio_text_12> ارجاع به معاونت اجرایی</span>##+## <input type=radio name=m id=radio_13 value=3><span id=radio_text_13> ارجاع به بازرسی منطقه</span>##;\r\n*/\r\n\r\nalert(1);\r\nvar tx = document.getElementById(##ID_STATIC_LABEL_1##);\r\ntx.style.fontSize = ##10pt##;\r\ntx.style.direction = ##rtl##;\r\nalert(2);\r\ntx.innerHTML = ##\r\n<input type=radio name=m id=radio_11 value=1><span id=radio_text_11> ارجاع به معاونت اداری</span>\r\n<input type=radio name=m id=radio_12 value=2><span id=radio_text_12> ارجاع به معاونت اجرایی</span>\r\n<input type=radio name=m id=radio_13 value=3><span id=radio_text_13> ارجاع به بازرسی منطقه</span>\r\n##;\r\nalert(3);\r\n\r\n/*\r\nvar radios = document.getElementsByName(##m##);\r\nfor(var i = 0, max = radios.length; i < max; i++) {\r\nradios[i].onclick = function() {\r\n\r\ndocument.getElementById(##ID_NUMR_ERJACODE##).value = this.value;\r\ndocument.getElementById(##ID_TEXT_ERJATXT##).value = document.getElementById(##radio_text_## + this.value).innerHTML;\r\n}\r\n}\r\n*/"}]');
+    dataManipulator.parseScriptConfig();
+    dataManipulator.setNewDocRefFieldInfo(newDocRefFieldInfo);
+
+
+    setFirstElement('ID_TEXT_EEEE')
+
+    dataManipulator.addDataItem(new TextboxDataControl("ID_TEXT_EEEE",
+        "111e",
+        true,
+        0,
+        2000,
+        "",
+        false,
+        false,
+        ""));
+
+    dataManipulator.addDataItem(new TimeDataControl("ID_TIME_SAAT",
+        "ساعت",
+        true,
+        0,
+        5,
+        "",
+        false,
+        false,
+        "false"));
+
+    dataManipulator.addDataItem(new NumberboxDataControl("ID_NUMR_ADADI",
+        "عددی",
+        true,
+        -999999999999999,
+        999999999999999,
+        null
+        ,
+        false,
+        2));
+    dataManipulator.addDataItem(new NumberboxDataControl("ID_NUMR_ERROR",
+        "عدد",
+        true,
+        -999999999999999,
+        999999999999999,
+        null
+        ,
+        false,
+        0
+    ));
+    dataManipulator.addDataItem(new TextAreaDataControl("ID_TXAR_TEXT",
+        "متن",
+        true,null,null,
+        false,
+        "normal"
+    ));
+    var SEMAT_referenceControl = new ReferenceTextboxDataControl("ID_RLST_SEMAT",
+        "semat",
+        true,null,
+        false,
+        'table',
+        'DEPARTMENT@TITLE',
+
+        "TEXT_BOX"
+
+
+    );
+
+    dataManipulator.addDataItem(SEMAT_referenceControl);
+
+    var ASHKHAS_referenceControl = new ReferenceTextboxDataControl("ID_RLST_ASHKHAS",
+        "اشخاص",
+        true,null,
+        false,
+        'table',
+        'PERSONS@FNAME',
+
+        "TEXT_BOX"
+
+
+    );
+
+    dataManipulator.addDataItem(ASHKHAS_referenceControl);
+
+    var TREE_referenceControl = new ReferenceTextboxDataControl("ID_RLST_TREE",
+        "ارجاعی درختی",
+        true,null,
+        false,
+        'tree',
+        '42',
+
+        "leaf"
+
+
+    );
+
+    dataManipulator.addDataItem(TREE_referenceControl);
+
+    var USER_referenceControl = new ReferenceTextboxDataControl("ID_RLST_USER",
+        "کاربر",
+        true,null,
+        true,
+        'table',
+        'PERSONS@TITLE',
+
+        "TEXT_BOX"
+
+
+    );
+
+    dataManipulator.addDataItem(USER_referenceControl);
+
+    var KARBARI_referenceControl = new ReferenceTextboxDataControl("ID_RLST_KARBARI",
+        "کاربری",
+        true,null,
+        false,
+        'table',
+        'USERS@username',
+
+        "TEXT_BOX"
+
+
+    );
+
+    dataManipulator.addDataItem(KARBARI_referenceControl);
+
+    var columnsConfigs = new Array();
+
+
+
+    var typeProps = {
+        maxLength: "",
+        minLength: "",
+        defaultValue: "",
+
+
+
+        end: ''
+    };
+
+
+    columnsConfigs.push({
+            type:"0"
+            ,name:"f1"
+            ,typeProperties: typeProps
+            ,columnStyle: "border-width:3px;border-color:Navy;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:000000;background-color:ffffff;text-decoration:none;text-align:right;"
+            ,fillingFieldStyle: "border-width:px;border-color:;border-style:;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;font-family:;font-weight:normal;font-style:normal;direction:;color:;background-color:;text-decoration:;text-align:left;"
+            ,fillingField: {
+
+                "value":"f1",
+
+                "id":"ID_STATIC_LABEL_1",
+
+                "tooltip":"",
+
+                "x":"280",
+
+                "y":"393",
+
+                "width":"102",
+
+                "height":"20",
+
+                "view-type":"normal",
+                lastParamAttr: ""
+            }
+            ,
+            "visible":"true",
+
+            "taborder":"0",
+
+            "data-source":"",
+
+            "editable":"true",
+
+            "id":"7561_HEADER_0",
+
+            "tooltip":"",
+
+            "x":"280",
+
+            "y":"393",
+
+            "width":"102",
+
+            "height":"20",
+
+            "view-type":"normal",
+
+            lastParamAttr: ""
+        }
+    );
+
+
+
+    var typeProps = {
+        maxLength: "",
+        minLength: "",
+        defaultValue: "",
+
+
+
+        end: ''
+    };
+
+
+    columnsConfigs.push({
+            type:"0"
+            ,name:"f2"
+            ,typeProperties: typeProps
+            ,columnStyle: "border-width:3px;border-color:Navy;border-style:none;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:000000;background-color:ffffff;text-decoration:none;text-align:right;"
+            ,fillingFieldStyle: "border-width:px;border-color:;border-style:;border-top-style:none;border-bottom-style:none;border-left-style:none;border-right-style:none;font-family:;font-weight:normal;font-style:normal;direction:;color:;background-color:;text-decoration:;text-align:left;"
+            ,fillingField: {
+
+                "value":"f2",
+
+                "id":"ID_STATIC_LABEL_1",
+
+                "tooltip":"",
+
+                "x":"280",
+
+                "y":"393",
+
+                "width":"102",
+
+                "height":"20",
+
+                "view-type":"normal",
+                lastParamAttr: ""
+            }
+            ,
+            "visible":"true",
+
+            "taborder":"0",
+
+            "data-source":"",
+
+            "editable":"true",
+
+            "id":"7561_HEADER_1",
+
+            "tooltip":"",
+
+            "x":"280",
+
+            "y":"393",
+
+            "width":"102",
+
+            "height":"20",
+
+            "view-type":"normal",
+
+            lastParamAttr: ""
+        }
+    );
+
+
+    var GRID_config = {
+        sourceID: "GRID"
+        ,name: "grid"
+        ,isRequired: false
+        ,divStyle: "border-width:2px;border-color:#dddddd;border-style:ridge;border-top-style:ridge;border-bottom-style:ridge;border-left-style:ridge;border-right-style:ridge;font-family:Tahoma;font-weight:normal;font-style:normal;direction:RTL;color:#000000;background-color:transparent;text-decoration:none;text-align:right;"
+        ,formType : "VIEW"
+        ,columns: columnsConfigs
+        ,
+        "taborder":"6",
+        "data-source":"GRID",
+        "editable":"true",
+        "id":"ID_GRID_GRID",
+        "tooltip":"grid",
+        "x":"176",
+        "y":"365",
+        "width":"250",
+        "height":"150",
+        "view-type":"normal",
+        value:'<GridData>  <ColumnData type="ShortText" name="f1">    <Data>12</Data>  </ColumnData>  <ColumnData type="ShortText" name="f2">    <Data>133</Data>  </ColumnData></GridData>'
+    };
+    dataManipulator.addDataItem(new GridDataControl(GRID_config));dataManipulator.addDataItem(new ImageDataControl("PIC",
+        "pic",
+        true,
+        false,
+        "gif,bmp,tiff,jpg,all,"
+
+    ));
+
+    var LIST_init_array = new Array();
+    var LIST_staticListControl = new StaticListDataControl("ID_SLST_LIST",
+        "فهرست",
+        true,
+        false,
+        LIST_init_array,null,
+        false,
+        7401,
+        "VIEW",
+        3,
+        "LIST_BOX");
+    LIST_staticListControl.addItem(new ListItem(
+        "یک",
+        "13",
+        true,
+        true));
+    LIST_staticListControl.addItem(new ListItem(
+        "دو",
+        "14",
+        false,
+        false));
+    LIST_staticListControl.addItem(new ListItem(
+        "سه",
+        "15",
+        false,
+        false));
+    LIST_staticListControl.addItem(new ListItem(
+        "چهار",
+        "16",
+        false,
+        false));
+    LIST_staticListControl.addItem(new ListItem(
+        "پنج",
+        "17",
+        false,
+        false));
+
+    dataManipulator.addDataItem(LIST_staticListControl);
+
+    setTimeout(function(){ document.body.scrollTop=1; document.body.scrollLeft=document.body.scrollWidth; }, 100);
+</SCRIPT>
+</BODY>
+</HTML>
