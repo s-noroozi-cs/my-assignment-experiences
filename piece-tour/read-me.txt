@@ -1,0 +1,13 @@
+1. install and configure maven and java 8 correctly.
+
+2. open command line / terminal to enter command 
+
+3. change current directory to root directory of project that pom.xml exist. 
+
+4.1. to run application in console mode execute following command
+	
+	mvn clean compile exec:java -Dexec.mainClass="App"
+	
+4.2. to run application in GUI mode execute following command
+
+	mvn clean compile exec:java -Dexec.mainClass="App" -Dexec.args="gui"
