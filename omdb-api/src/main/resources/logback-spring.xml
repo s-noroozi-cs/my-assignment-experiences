@@ -1,0 +1,43 @@
+<configuration scan="true">
+
+    <springProperty scope="" name="SPRING_PROFILE" source="spring.profiles.active" defaultValue="development"/>
+
+    <appender name="STDOUT_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{"yyyy-MM-dd'T'HH:mm:ss,SSS"} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/logs/backbase-oscar-academy-api-${SPRING_PROFILE}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>/var/logs/backbase-oscar-academy-api-${SPRING_PROFILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 15 days' worth of history capped at 20GB total size -->
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>20GB</totalSizeCap>
+
+        </rollingPolicy>
+        <append>true</append>
+        <!-- set immediateFlush to false for much higher logging throughput -->
+        <immediateFlush>false</immediateFlush>
+        <encoder>
+            <pattern>%d{"yyyy-MM-dd'T'HH:mm:ss,SSS"} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <springProfile name="development">
+        <root level="info">
+            <appender-ref ref="STDOUT_APPENDER"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="production">
+        <root level="info">
+            <appender-ref ref="FILE_APPENDER"/>
+        </root>
+    </springProfile>
+
+</configuration>

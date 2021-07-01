@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: "jdbc:h2:mem:omdb"
+    driverClassName: "org.h2.Driver"
+    username: "sa"
+    password: ""
+  jpa:
+    database-platform: "org.hibernate.dialect.H2Dialect"
+    open-in-view: false
+    show-sql: true
+    generate-ddl: true
+  h2:
+    console:
+      enabled: true
+  profiles:
+    active: development
+
+server.servlet.context-path: "/academy-awards"
+
+http.connection.manager:
+  maxPoolSize: 100
+  defaultKeepAlive: 10000
+  connectionTimeout: 4000
+  connectionRequestTimeout: 5000
+  socketTimeout: 7000
+  connectionMonitoringInterval: 3000
+  closeIdleConnections: 15000
+
+#debug : true
+#logging.level.org.springframework.security: DEBUG
