@@ -1,0 +1,12 @@
+<h2 class="head">Members</h2>
+
+<table ng-table="$ctrl.tableParams" class="table">
+    <tr ng-repeat="member in $data">
+        <td title="'Name'">{{member.name}}</td>
+        <td title="'Identifier'">{{member.id}}</td>
+        <td title="'Actions'"><a href="#!/members/{{member.id}}">See More</a></td>
+    </tr>
+    <tr ng-if="$ctrl.tableParams.data.length === 0">
+        <td colspan="2">No results</td>
+    </tr>
+</table>

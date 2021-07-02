@@ -1,0 +1,22 @@
+<h2 class="head float-l">Details for {{$ctrl.member.name}}</h2>
+<a class="top-back-button" href="/#!/members">Back to all members</a>
+
+<table  class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+
+    <tr ng-repeat="contact in $ctrl.member.contacts">
+        <td title="'Name'">{{contact.name}}</td>
+        <td title="'Phone'">{{contact.phone}}</td>
+        <td title="'Email'">{{contact.email}}</td>
+    </tr>
+
+    <tr ng-if="$ctrl.member.contacts.length === 0">
+        <td colspan="2">No results</td>
+    </tr>
+</table>

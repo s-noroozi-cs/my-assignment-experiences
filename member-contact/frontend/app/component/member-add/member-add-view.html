@@ -1,0 +1,30 @@
+<form name="addform">
+    <div class="form-group">
+        <label for="member-name">Member Name</label>
+        <input type="text" id="member-name" ng-model="$ctrl.member.name" required/>
+    </div>
+
+
+    <div class="form-group">
+        <section ng-repeat="contact in $ctrl.member.contacts">
+            <div class="form-group">
+                <span class="serial-number">{{ $index + 1 }}.</span>
+                <input ng-model="contact.name" type="text" placeholder="Contact Name" required/>
+                <input ng-model="contact.phone" type="text" placeholder="Contact Phone" required/>
+                <input ng-model="contact.email" type="email" placeholder="Contact Email" required/>
+                <button class="btn-danger" ng-click="$ctrl.removeContact(contact)">Remove</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="form-group">
+        <button class="btn-primary" ng-click="$ctrl.addContact()">Add New Contact</button>
+        <button ng-disabled="!addform.$valid" class="btn-primary" ng-click="$ctrl.addMember()">Add Member</button>
+    </div>
+
+    <span id="spn1" ng-if="$ctrl.errorMsg">{{$ctrl.errorMsg}}</span>
+
+    <span id="spn2" ng-if="$ctrl.successMsg">
+    {{$ctrl.successMsg}}. View details <a ng-href="#!/members/{{$ctrl.successId}}">here</a>
+</span>
+</form>
