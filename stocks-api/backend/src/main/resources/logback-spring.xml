@@ -1,0 +1,16 @@
+<configuration scan="true">
+
+    <springProperty scope="" name="SPRING_PROFILE" source="spring.profiles.active" defaultValue="development"/>
+
+    <appender name="STDOUT_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{"yyyy-MM-dd'T'HH:mm:ss,SSS"} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+   
+    <root level="info">
+        <appender-ref ref="STDOUT_APPENDER"/>
+    </root>
+
+</configuration>

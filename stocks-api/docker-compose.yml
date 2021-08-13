@@ -1,0 +1,24 @@
+version: '3'
+services:
+
+  stock-api:
+    image: stock-app-backend:0.0.1
+    container_name: stock-api
+    ports:
+      - 8080:8080
+    networks: 
+      - stock-net
+
+  stock-ui:
+    image: stock-app-frontend:0.0.1
+    container_name: stock-ui
+    ports:
+      - 3000:80
+    links:
+      - stock-api
+    networks: 
+      - stock-net
+      
+networks:
+    stock-net:
+        driver: bridge
