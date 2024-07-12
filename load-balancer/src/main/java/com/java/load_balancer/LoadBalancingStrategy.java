@@ -1,4 +1,4 @@
-package com.java.sample;
+package com.java.load_balancer;
 
 import java.util.Map;
 
